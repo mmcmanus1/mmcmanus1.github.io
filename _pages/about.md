@@ -32,7 +32,7 @@ I'm an Investment Engineer on Bridgewater Associates' AI & ML Team (AIA Labs)—
 
 ---
 
-Off the keyboard you'll find me logging tempo runs, squeezing in a squash match, or framing city lights through a camera lens.
+Off the keyboard I'm passionate about working out, love playing basketball, and enjoy keeping up with the latest AI/ML research.
 
 [1]: https://dspace.mit.edu/handle/1721.1/156966 "Inertial Navigation System Drift Reduction Using Scientific Machine Learning"
 
