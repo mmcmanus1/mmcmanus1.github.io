@@ -1,16 +1,16 @@
 {
   "basics": {
-    "name": "Your Sidebar Name",
-    "email": "none@example.org",
+    "name": "Matt McManus",
+    "email": "",
     "phone": "",
-    "website": "https://academicpages.github.io",
-    "summary": "Currently employed at Red Brick University. Short biography for the left-hand sidebar",
+    "website": "https://mmcmanus1.github.io",
+    "summary": "ML Researcher | MIT CSAIL Graduate",
     "location": {
       "address": "",
       "postalCode": "",
-      "city": "Earth",
+      "city": "Cambridge",
       "countryCode": "US",
-      "region": ""
+      "region": "MA"
     },
     "profiles": [
       {
@@ -19,43 +19,20 @@
         "url": "https://scholar.google.com/citations?user=PS_CX0AAAAAJ"
       },
       {
-        "network": "ORCID",
-        "username": "",
-        "url": "http://orcid.org/yourorcidurl"
-      },
-      {
         "network": "GitHub",
-        "username": "academicpages",
-        "url": "https://github.com/academicpages"
+        "username": "mmcmanus1",
+        "url": "https://github.com/mmcmanus1"
       }
     ]
   },
   "work": [],
   "education": [
     {
-      "institution": "GitHub University",
-      "area": "Ph.D in Version Control Theory",
-      "studyType": "",
+      "institution": "Massachusetts Institute of Technology",
+      "area": "Computer Science",
+      "studyType": "Master of Science",
       "startDate": "",
-      "endDate": "2018",
-      "gpa": null,
-      "courses": []
-    },
-    {
-      "institution": "GitHub University",
-      "area": "M.S. in Jekyll",
-      "studyType": "",
-      "startDate": "",
-      "endDate": "2014",
-      "gpa": null,
-      "courses": []
-    },
-    {
-      "institution": "GitHub University",
-      "area": "B.S. in GitHub",
-      "studyType": "",
-      "startDate": "",
-      "endDate": "2012",
+      "endDate": "2024",
       "gpa": null,
       "courses": []
     }
@@ -66,32 +43,18 @@
   "references": [],
   "publications": [
     {
-      "name": "Paper Title Number 1",
-      "publisher": "Journal 1",
-      "releaseDate": "2009-10-01",
-      "website": "http://academicpages.github.io/files/paper1.pdf",
-      "summary": "This paper is about the number 1. The number 2 is left for future work."
+      "name": "Inertial Navigation System Drift Reduction Using Scientific Machine Learning",
+      "publisher": "MIT CSAIL",
+      "releaseDate": "2024-12-01",
+      "website": "https://mmcmanus1.github.io/files/MIT-McManus-Thesis.pdf",
+      "summary": "Master's thesis on reducing inertial navigation system drift using scientific machine learning."
     },
     {
-      "name": "Paper Title Number 2",
-      "publisher": "Journal 1",
-      "releaseDate": "2010-10-01",
-      "website": "http://academicpages.github.io/files/paper2.pdf",
-      "summary": "This paper is about the number 2. The number 3 is left for future work."
-    },
-    {
-      "name": "Paper Title Number 3",
-      "publisher": "Journal 1",
-      "releaseDate": "2015-10-01",
-      "website": "http://academicpages.github.io/files/paper3.pdf",
-      "summary": "This paper is about the number 3. The number 4 is left for future work."
-    },
-    {
-      "name": "Paper Title Number 4",
-      "publisher": "GitHub Journal of Bugs",
-      "releaseDate": "2024-02-17",
-      "website": "http://academicpages.github.io/files/paper3.pdf",
-      "summary": "This paper is about fixing template issue #693."
+      "name": "Evaluating the Performance of GPT-3 in Simulated Cybersecurity Scenarios: A Focus on Graph-Based Problems",
+      "publisher": "MIT CSAIL",
+      "releaseDate": "2023-05-11",
+      "website": "https://mmcmanus1.github.io/files/Research-Article-Final.pdf",
+      "summary": "This paper evaluates the performance of GPT-3 in simulated cybersecurity scenarios, focusing on graph-based problems."
     }
   ]
 }
