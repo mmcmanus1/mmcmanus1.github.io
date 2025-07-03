@@ -7,12 +7,32 @@ redirect_from:
   - /about.html
 ---
 
-I am working on the AI/ML team at Bridgewater Associates. My current work focuses on large-language-model agents and reinforcement-learning pipelines for Forecasting, a line of research I pursue in close collaboration with Daniel Kang (UIUC) and Bradly Stadie (Northwestern). 
+I'm an Investment Engineer on Bridgewater Associates' AI & ML Team (AIA Labs)—the internal research group that couples proprietary tabular-data models, reasoning engines, and large-language-model (LLM) systems to generate macro-investing alpha. My current work explores retrieval-augmented forecasters and reinforcement-learning techniques for LLMs in collaboration with UIUC's Daniel Kang and Northwestern's Bradly Stadie, whose research spans scalable oversight and RL-based alignment.
 
-Prior to joining Bridgewater full-time, I completed an M.Eng. and B.S. in Computer Science at MIT. At the Julia Lab, my master's thesis introduced a scientific-machine-learning framework that reduced inertial-navigation drift by more than 60 percent in GPS-denied settings. Earlier roles included a stint as a Quantitative Researcher at Two Sigma, where I applied statistical learning to multi-asset data and helped prototype factor-discovery tools.
+---
 
-My research interests span three themes:
+## Background
 
-1. AI for Macro & Markets – LLM-augmented research workflows, factor discovery, and interpretable risk models.
-2. Scientific Machine Learning – Physics-informed neural nets and differentiable simulators for high-accuracy forecasting.
+* MIT — M.Eng. & B.S. in Computer Science (GPA 5.0/5.0).
+  At the Julia Lab I developed a physics-informed neural-ODE framework that cut inertial-navigation drift by more than 60 percent in GPS-denied settings.([dspace.mit.edu][1])
+
+* Two Sigma — Quantitative Research (part-time).
+  Ran fast-cycle experiments on factor discovery and regime detection across multi-asset datasets, sharpening my data-driven market intuition.
+
+* MIT Pokerbots — President.
+  Led a month-long autonomous-poker competition for 250 + students, which sparked my long-standing fascination with reinforcement learning.
+
+---
+
+## Research Interests
+
+1. LLM-Driven Macro Forecasting – Retrieval, chain-of-thought reasoning, and calibrated ensemble aggregation.
+2. RL for LLMs – Policy-gradient methods that keep probability estimates stable as conditions shift.
+3. Scientific Machine Learning – Physics-informed nets and differentiable simulators for data-sparse domains.
+
+---
+
+Off the keyboard you'll find me logging tempo runs, squeezing in a squash match, or framing city lights through a camera lens.
+
+[1]: https://dspace.mit.edu/handle/1721.1/156966 "Inertial Navigation System Drift Reduction Using Scientific Machine Learning"
 
