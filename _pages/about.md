@@ -7,24 +7,14 @@ redirect_from:
   - /about.html
 ---
 
-Welcome to my personal academic website. I'm Matt McManus, a researcher and recent graduate from MIT's Computer Science and Artificial Intelligence Laboratory (CSAIL).
+## About
 
-## Research Interests
+I am working on the AI/ML team at Bridgewater Associates. My current work focuses on large-language-model agents and reinforcement-learning pipelines for Forecasting, a line of research I pursue in close collaboration with Daniel Kang (UIUC) and Bradly Stadie (Northwestern). 
 
-My research focuses on the intersection of machine learning and practical applications, particularly in:
+Prior to joining Bridgewater full-time, I completed an M.Eng. and B.S. in Computer Science at MIT. At the Julia Lab, my master's thesis introduced a scientific-machine-learning framework that reduced inertial-navigation drift by more than 60 percent in GPS-denied settings. Earlier roles included a stint as a Quantitative Researcher at Two Sigma, where I applied statistical learning to multi-asset data and helped prototype factor-discovery tools.
 
-- **Scientific Machine Learning**: Developing physics-informed approaches to reduce drift in inertial navigation systems
-- **Cybersecurity**: Evaluating large language models like GPT-3 in simulated cybersecurity scenarios, with emphasis on graph-based problems
-- **Navigation Systems**: Working on improving the accuracy and reliability of autonomous navigation technologies
+My research interests span three themes:
 
-## Background
+1. AI for Macro & Markets – LLM-augmented research workflows, factor discovery, and interpretable risk models.
+2. Scientific Machine Learning – Physics-informed neural nets and differentiable simulators for high-accuracy forecasting.
 
-I recently completed my Master's thesis at MIT CSAIL, where I worked on "Inertial Navigation System Drift Reduction Using Scientific Machine Learning." This work explores how modern machine learning techniques can be applied to solve fundamental problems in navigation and autonomous systems.
-
-## Current Work
-
-I'm passionate about bridging the gap between theoretical machine learning advances and real-world applications, particularly in areas where reliability and precision are critical.
-
----
-
-*This website showcases my research publications, projects, and academic journey. Feel free to explore my work and reach out if you'd like to connect or collaborate.*

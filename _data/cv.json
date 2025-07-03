@@ -4,13 +4,13 @@
     "email": "",
     "phone": "",
     "website": "https://mmcmanus1.github.io",
-    "summary": "ML Researcher | MIT CSAIL Graduate",
+    "summary": "Investment Engineer | Bridgewater Associates",
     "location": {
       "address": "",
       "postalCode": "",
-      "city": "Cambridge",
+      "city": "New York",
       "countryCode": "US",
-      "region": "MA"
+      "region": "NY"
     },
     "profiles": [
       {
@@ -25,7 +25,33 @@
       }
     ]
   },
-  "work": [],
+  "work": [
+    {
+      "company": "Bridgewater Associates",
+      "position": "Investment Engineer, AIA Labs",
+      "website": "https://www.bridgewater.com",
+      "startDate": "2024",
+      "endDate": "",
+      "summary": "Investment Engineer on Bridgewater Associates' AIA Labs team, developing AI and ML systems for systematic alpha generation in global macro markets. Focus on large-language-model agents and reinforcement-learning pipelines for economic reasoning and policy simulation.",
+      "highlights": [
+        "Developed LLM-augmented research workflows for factor discovery",
+        "Built reinforcement-learning pipelines for economic reasoning",
+        "Collaborated with academic researchers on AI for macro markets"
+      ]
+    },
+    {
+      "company": "Two Sigma",
+      "position": "Quantitative Researcher",
+      "website": "https://www.twosigma.com",
+      "startDate": "",
+      "endDate": "",
+      "summary": "Applied statistical learning to multi-asset data and helped prototype factor-discovery tools for the equities desk.",
+      "highlights": [
+        "Applied statistical learning to multi-asset data",
+        "Prototyped factor-discovery tools for equities desk"
+      ]
+    }
+  ],
   "education": [
     {
       "institution": "Massachusetts Institute of Technology",
