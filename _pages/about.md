@@ -1,6 +1,6 @@
 ---
 permalink: /
-title: "About"
+title: "Matt McManus"
 author_profile: true
 redirect_from: 
   - /about/
