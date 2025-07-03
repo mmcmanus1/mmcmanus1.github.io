@@ -7,4 +7,4 @@ redirect_from:
   - /resume
 ---
 
-CV coming soon.
+CV coming soon...
