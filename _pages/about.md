@@ -6,7 +6,7 @@ redirect_from:
   - /about.html
 ---
 
-I'm an Investment Engineer on Bridgewater Associates' AI & ML Team (AIA Labs)—the internal research group that couples proprietary tabular-data models, reasoning engines, and large-language-model (LLM) systems to generate macro-investing alpha. My current work explores retrieval-augmented forecasters and reinforcement-learning techniques for LLMs in collaboration with UIUC's Daniel Kang and Northwestern's Bradly Stadie, whose research spans scalable oversight and RL-based alignment.
+I'm an Investment Engineer on Bridgewater Associates' AI & ML Team (AIA Labs)—the internal research group that couples proprietary tabular-data models, reasoning engines, and large-language-model (LLM) systems to generate macro-investing alpha. 
 
 ---
 
