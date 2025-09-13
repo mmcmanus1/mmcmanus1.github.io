@@ -8,13 +8,13 @@ tags:
   - technology
 ---
 
-Welcome to my blog! This is my first post where I'll share insights about technology, finance, and my experiences in the investment engineering field.
+Welcome to my blog! This is my first post where I'll share insights about technology, finance, and my experiences in the ML Engineering field.
 
 ## Why I Started This Blog
 
 After working at Bridgewater Associates and completing my studies at MIT, I've accumulated experiences and insights that I believe are worth sharing. This blog will serve as a platform to discuss:
 
-- Investment engineering techniques and methodologies
+- ML Engineering techniques and methodologies
 - Technology trends in quantitative finance
 - Personal projects and research
 - Lessons learned from my academic and professional journey
