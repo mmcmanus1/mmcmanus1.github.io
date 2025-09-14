@@ -249,7 +249,7 @@ def parse_skills(skills_text):
     return skills_entries
 
 def parse_publications(pubs_dir):
-    """Parse publications from the _publications directory."""
+    """Parse publications from the _papers directory."""
     publications = []
     
     if not os.path.exists(pubs_dir):
@@ -299,7 +299,7 @@ def create_cv_json(md_file, config_file, repo_root, output_file):
         "languages": [],
         "interests": [],
         "references": [],
-        "publications": parse_publications(os.path.join(repo_root, "_publications"))
+        "papers": parse_publications(os.path.join(repo_root, "_papers"))
     }
     
     # Extract languages and interests from config if available

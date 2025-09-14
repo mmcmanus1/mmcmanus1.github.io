@@ -1,8 +1,8 @@
 ---
 title: "Inertial Navigation System Drift Reduction Using Scientific Machine Learning"
-collection: publications
+collection: papers
 category: manuscripts
-permalink: /publication/2024-12-01-mit-thesis
+permalink: /paper/2024-12-01-mit-thesis
 excerpt: 'Master&apos;s thesis on reducing inertial navigation system drift using scientific machine learning.'
 date: 2024-12-01
 paperurl: '/files/MIT-McManus-Thesis.pdf'
