@@ -25,7 +25,7 @@ keywords: "Matt McManus, Engineer, Bridgewater Associates, MIT, Machine Learning
 
 ## About
 
-I'm a Machine Learning Engineer at **Bridgewater Associates** (AIA Labs) working on using LLMs to generate macroeconomic alpha. 
+I'm an Engineer at **Bridgewater Associates** (AIA Labs) working on using LLMs to generate macroeconomic alpha. 
 
 Previously, I was a Quantitative Researcher (part-time) at **Two Sigma**, developing factor-neutral cross-sectional alphas, designing feature/learner-level decorrelation, and running leakage-safe walk-forward tests (OOS rank IC/IR).
 
