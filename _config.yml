@@ -12,7 +12,8 @@ site_theme               : "default"
 title                    : "Matt McManus"
 title_separator          : "-"
 name                     : &name "Matt McManus"
-description              : &description "Matt McManus - Engineer at Bridgewater Associates. MIT Computer Science M.Eng & B.S. Research in LLMs, reinforcement learning, and scientific machine learning."
+tagline                  : "Engineer at Bridgewater Associates"
+description              : &description "Matt McManus - Engineer at Bridgewater Associates specializing in LLMs, reinforcement learning, and scientific machine learning. MIT Computer Science M.Eng & B.S."
 url                      : https://mmcmanus1.github.io # the base hostname & protocol for your site
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
 repository               : "mmcmanus1/mmcmanus1.github.io"
@@ -282,6 +283,7 @@ plugins:
   - jekyll-gist
   - jekyll-paginate
   - jekyll-sitemap
+  - jekyll-seo-tag
   - jekyll-redirect-from
   - jemoji
 
@@ -291,6 +293,7 @@ whitelist:
   - jekyll-gist
   - jekyll-paginate
   - jekyll-sitemap
+  - jekyll-seo-tag
   - jekyll-redirect-from
   - jemoji
 
