@@ -5,20 +5,11 @@ description: "Matt McManus - Engineer at Bridgewater Associates specializing in 
 keywords: "Matt McManus, Engineer, Bridgewater Associates, MIT, Machine Learning, LLM, Reinforcement Learning, Scientific Machine Learning"
 ---
 
-I'm an Engineer on Bridgewater Associates' AI & ML Team (AIA Labs)—the internal research group that couples proprietary tabular-data models, reasoning engines, and large-language-model (LLM) systems to generate macro-investing alpha.
-
----
-
 ## Background
 
-* MIT — M.Eng. & B.S. in Computer Science (GPA 5.0/5.0).
-  At the Julia Lab I developed a physics-informed neural-ODE framework that cut inertial-navigation drift by more than 60 percent in GPS-denied settings.([dspace.mit.edu][1])
+I'm a Machine Learning Engineer at Bridgewater (AIA Labs) working on trustworthy LLM systems—evaluation pipelines with strict time-windowing, dispersion/consistency signals, probability calibration, and scalable FastAPI/Kubernetes services. I use structured and unstructured data with LLMs to pursue macroeconomic alpha.
 
-* Two Sigma — Quantitative Research (part-time).
-  I developed cross-sectional signals on anonymized panels and built leakage-safe walk-forward pipelines with rolling normalization and liquidity-weighted scoring. Work emphasized factor-neutralization and decorrelation, targeting stable OOS rank IC/IR.
-
-* MIT Pokerbots — President.
-  Led a month-long autonomous-poker competition for 250 + students, which sparked my long-standing fascination with reinforcement learning.
+Previously, I was a Quant Researcher (part-time) at Two Sigma, developing factor-neutral cross-sectional alphas, designing feature/learner-level decorrelation, and running leakage-safe walk-forward tests (OOS rank IC/IR). I earned an M.Eng. and B.S. at MIT; at the Julia Lab my thesis on physics-informed neural ODEs reduced strapdown INS error by ~63% vs a tuned EKF (GPS-denied), with a reproducible sim/eval harness. I also built a graph-based cyber-defense simulator (LLM-assisted agents), explored neuro-symbolic ideas, and studied low-complexity interpolation and mechanistic interpretability.
 
 ---
 
@@ -30,6 +21,4 @@ I'm an Engineer on Bridgewater Associates' AI & ML Team (AIA Labs)—the interna
 
 ---
 
-Off the keyboard I'm passionate about working out, love playing basketball, and enjoy keeping up with the latest AI/ML research.
-
-[1]: https://dspace.mit.edu/handle/1721.1/156966 "Inertial Navigation System Drift Reduction Using Scientific Machine Learning" 
+Off the keyboard I'm passionate about working out, love playing basketball, and enjoy keeping up with the latest AI/ML research. 
