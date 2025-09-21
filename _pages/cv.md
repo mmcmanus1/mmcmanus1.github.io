@@ -8,7 +8,7 @@ redirect_from:
 ---
 
 ## Matt McManus
-ML Engineer | Bridgewater Associates
+Engineer | Bridgewater Associates
 
 ---
 
@@ -23,7 +23,7 @@ ML Engineer | Bridgewater Associates
 
 ### Experience
 
-**Bridgewater Associates** - ML Engineer, AI & ML Team (AIA Labs)
+**Bridgewater Associates** - Engineer, AI & ML Team (AIA Labs)
 *Current Position*
 
 **Two Sigma** - Quantitative Research (Part-time)
@@ -44,6 +44,6 @@ ML Engineer | Bridgewater Associates
 
 ### Research Interests
 
-1. **LLM-Driven Macro Forecasting** – Retrieval, chain-of-thought reasoning, and calibrated ensemble aggregation
+1. **Mechanistic Interpretability** – Understanding and explaining the internal representations and computations of neural networks
 2. **RL for LLMs** – Policy-gradient methods that keep probability estimates stable as conditions shift
 3. **Scientific Machine Learning** – Physics-informed nets and differentiable simulators for data-sparse domains

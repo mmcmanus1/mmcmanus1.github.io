@@ -1,11 +1,11 @@
 ---
 layout: single
 author_profile: true
-description: "Matt McManus - ML Engineer at Bridgewater Associates specializing in LLMs, reinforcement learning, and scientific machine learning. MIT Computer Science M.Eng & B.S."
-keywords: "Matt McManus, ML Engineer, Bridgewater Associates, MIT, Machine Learning, LLM, Reinforcement Learning, Scientific Machine Learning"
+description: "Matt McManus - Engineer at Bridgewater Associates specializing in LLMs, reinforcement learning, and scientific machine learning. MIT Computer Science M.Eng & B.S."
+keywords: "Matt McManus, Engineer, Bridgewater Associates, MIT, Machine Learning, LLM, Reinforcement Learning, Scientific Machine Learning"
 ---
 
-I'm an ML Engineer on Bridgewater Associates' AI & ML Team (AIA Labs)—the internal research group that couples proprietary tabular-data models, reasoning engines, and large-language-model (LLM) systems to generate macro-investing alpha.
+I'm an Engineer on Bridgewater Associates' AI & ML Team (AIA Labs)—the internal research group that couples proprietary tabular-data models, reasoning engines, and large-language-model (LLM) systems to generate macro-investing alpha.
 
 ---
 
@@ -24,7 +24,7 @@ I'm an ML Engineer on Bridgewater Associates' AI & ML Team (AIA Labs)—the inte
 
 ## Research Interests
 
-1. LLM-Driven Macro Forecasting – Retrieval, chain-of-thought reasoning, and calibrated ensemble aggregation.
+1. Mechanistic Interpretability – Understanding and explaining the internal representations and computations of neural networks.
 2. RL for LLMs – Policy-gradient methods that keep probability estimates stable as conditions shift.
 3. Scientific Machine Learning – Physics-informed nets and differentiable simulators for data-sparse domains.
 

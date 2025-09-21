@@ -12,7 +12,7 @@ site_theme               : "default"
 title                    : "Matt McManus"
 title_separator          : "-"
 name                     : &name "Matt McManus"
-description              : &description "Matt McManus - ML Engineer at Bridgewater Associates. MIT Computer Science M.Eng & B.S. Research in LLMs, reinforcement learning, and scientific machine learning."
+description              : &description "Matt McManus - Engineer at Bridgewater Associates. MIT Computer Science M.Eng & B.S. Research in LLMs, reinforcement learning, and scientific machine learning."
 url                      : https://mmcmanus1.github.io # the base hostname & protocol for your site
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
 repository               : "mmcmanus1/mmcmanus1.github.io"
@@ -25,7 +25,7 @@ author:
   avatar           : "profile.png"
   name             : "Matt McManus"
   pronouns         : # example: "she/her"  
-  bio              : "ML Engineer | Bridgewater Associates"
+  bio              : "Engineer | Bridgewater Associates"
   location         : "New York, NY"
   employer         : "Bridgewater Associates"
   uri              : # URL

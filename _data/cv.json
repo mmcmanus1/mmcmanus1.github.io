@@ -4,7 +4,7 @@
     "email": "",
     "phone": "",
     "website": "https://mmcmanus1.github.io",
-    "summary": "ML Engineer | Bridgewater Associates",
+    "summary": "Engineer | Bridgewater Associates",
     "location": {
       "address": "",
       "postalCode": "",
@@ -28,11 +28,11 @@
   "work": [
     {
       "company": "Bridgewater Associates",
-      "position": "ML Engineer, AIA Labs",
+      "position": "Engineer, AIA Labs",
       "website": "https://www.bridgewater.com",
       "startDate": "2024",
       "endDate": "",
-      "summary": "ML Engineer on Bridgewater Associates' AIA Labs team, developing AI and ML systems for systematic alpha generation in global macro markets. Focus on large-language-model agents and reinforcement-learning pipelines for economic reasoning and policy simulation.",
+      "summary": "Engineer on Bridgewater Associates' AIA Labs team, developing AI and ML systems for systematic alpha generation in global macro markets. Focus on large-language-model agents and reinforcement-learning pipelines for economic reasoning and policy simulation.",
       "highlights": [
         "Developed LLM-augmented research workflows for factor discovery",
         "Built reinforcement-learning pipelines for economic reasoning",
