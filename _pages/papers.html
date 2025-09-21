@@ -2,14 +2,50 @@
 layout: archive
 title: "Papers"
 permalink: /papers/
-author_profile: false
+author_profile: true
 ---
 
 {% include base_path %}
 
-{% for post in site.papers reversed %}
-  {% include archive-single.html %}
-{% endfor %}
+<div class="papers-container">
+  {% for post in site.papers reversed %}
+    <div class="paper-item">
+      {% include archive-single.html %}
+    </div>
+  {% endfor %}
+</div>
+
+<style>
+.papers-container {
+  margin-top: 2em;
+}
+
+.paper-item {
+  margin-bottom: 3em;
+  padding-bottom: 2em;
+  border-bottom: 1px solid #e1e4e8;
+}
+
+.paper-item:last-child {
+  border-bottom: none;
+}
+
+.archive__item-title {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
+
+.archive__item-excerpt {
+  margin: 1em 0;
+  font-size: 0.95em;
+  line-height: 1.6;
+}
+
+.page__date {
+  color: #6c757d;
+  font-size: 0.9em;
+}
+</style>
 
 
 
