@@ -1,0 +1,8 @@
+# Robots.txt for https://mmcmanus1.github.io
+
+User-agent: *
+Allow: /
+Disallow: /hidden-blog-posts/
+
+# Sitemap location
+Sitemap: https://mmcmanus1.github.io/sitemap.xml

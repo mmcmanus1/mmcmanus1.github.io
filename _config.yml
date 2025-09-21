@@ -12,7 +12,7 @@ site_theme               : "default"
 title                    : "Matt McManus"
 title_separator          : "-"
 name                     : &name "Matt McManus"
-description              : &description "Personal academic website"
+description              : &description "Matt McManus - ML Engineer at Bridgewater Associates. MIT Computer Science M.Eng & B.S. Research in LLMs, reinforcement learning, and scientific machine learning."
 url                      : https://mmcmanus1.github.io # the base hostname & protocol for your site
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
 repository               : "mmcmanus1/mmcmanus1.github.io"
@@ -29,7 +29,7 @@ author:
   location         : "New York, NY"
   employer         : "Bridgewater Associates"
   uri              : # URL
-  email            : # Add your email here when ready 
+  email            : "mattmcmanus41@gmail.com" 
 
   # Academic websites
   academia         : # URL
@@ -148,9 +148,9 @@ social:
 
 # Analytics
 analytics:
-  provider               :  "false" # false (default), "google", "google-universal", "google-analytics-4", "custom"
+  provider               :  "google-analytics-4" # false (default), "google", "google-universal", "google-analytics-4", "custom"
   google:
-    tracking_id          :
+    tracking_id          : "G-XXXXXXXXXX" # Replace with your actual Google Analytics ID
 
 
 # Reading Files

@@ -1,6 +1,8 @@
 ---
 layout: single
 author_profile: true
+description: "Matt McManus - ML Engineer at Bridgewater Associates specializing in LLMs, reinforcement learning, and scientific machine learning. MIT Computer Science M.Eng & B.S."
+keywords: "Matt McManus, ML Engineer, Bridgewater Associates, MIT, Machine Learning, LLM, Reinforcement Learning, Scientific Machine Learning"
 ---
 
 I'm an ML Engineer on Bridgewater Associates' AI & ML Team (AIA Labs)—the internal research group that couples proprietary tabular-data models, reasoning engines, and large-language-model (LLM) systems to generate macro-investing alpha.
