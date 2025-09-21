@@ -36,7 +36,7 @@ Engineer | Bridgewater Associates
 
 ### Download Full Resume
 
-<a href="/files/Matt McManus Resume.pdf" class="btn btn--primary" target="_blank">
+<a href="/files/matt_mcmanus_pristine_v2_1page.pdf" class="btn btn--primary" target="_blank">
   <i class="fas fa-download"></i> Download Resume (PDF)
 </a>
 
