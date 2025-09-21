@@ -11,8 +11,8 @@ main:
   - title: "Research"
     url: /research/
 
-  - title: "Research Statement"
-    url: /research-statement/
+  # - title: "Research Statement"
+  #   url: /research-statement/
 
   # - title: "Blog Posts"
   #   url: /year-archive/
