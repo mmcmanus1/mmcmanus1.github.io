@@ -15,7 +15,7 @@ I'm an Engineer on Bridgewater Associates' AI & ML Team (AIA Labs)—the interna
   At the Julia Lab I developed a physics-informed neural-ODE framework that cut inertial-navigation drift by more than 60 percent in GPS-denied settings.([dspace.mit.edu][1])
 
 * Two Sigma — Quantitative Research (part-time).
-  Ran fast-cycle experiments on factor discovery and regime detection across multi-asset datasets, sharpening my data-driven market intuition.
+  I developed cross-sectional signals on anonymized panels and built leakage-safe walk-forward pipelines with rolling normalization and liquidity-weighted scoring. Work emphasized factor-neutralization and decorrelation, targeting stable OOS rank IC/IR.
 
 * MIT Pokerbots — President.
   Led a month-long autonomous-poker competition for 250 + students, which sparked my long-standing fascination with reinforcement learning.
