@@ -5,23 +5,6 @@ description: "Matt McManus - Engineer at Bridgewater Associates specializing in 
 keywords: "Matt McManus, Engineer, Bridgewater Associates, MIT, Machine Learning, LLM, Reinforcement Learning, Scientific Machine Learning"
 ---
 
-<div style="margin-bottom: 2em;">
-  <p style="font-size: 1.2em; font-weight: 300; color: #555; margin-bottom: 1.5em;">
-    Machine Learning Engineer specializing in trustworthy AI systems and quantitative finance
-  </p>
-
-  <div style="margin-bottom: 2em;">
-    <a href="/cv/" class="btn btn--primary" style="margin-right: 0.5em;">
-      <i class="fas fa-file-alt"></i> CV
-    </a>
-    <a href="/research/" class="btn btn--info" style="margin-right: 0.5em;">
-      <i class="fas fa-graduation-cap"></i> Research
-    </a>
-    <a href="mailto:mattmcmanus41@gmail.com" class="btn btn--inverse">
-      <i class="fas fa-envelope"></i> Contact
-    </a>
-  </div>
-</div>
 
 ## About
 
