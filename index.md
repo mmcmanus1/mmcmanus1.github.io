@@ -3,7 +3,7 @@ layout: single
 title: ""
 author_profile: true
 description: "Matt McManus - ML Engineer at Bridgewater Associates specializing in LLMs, reinforcement learning, and scientific machine learning. MIT Computer Science M.Eng & B.S."
-keywords: "Matt McManus, Engineer, Bridgewater Associates, MIT, Machine Learning, LLM, Reinforcement Learning, Scientific Machine Learning"
+keywords: "Matt McManus, ML Engineer, Bridgewater Associates, MIT, Machine Learning, LLM, Reinforcement Learning, Scientific Machine Learning"
 ---
 
 I am interested in developing Machine Intelligence and Artificial General Intelligence. A few of my prior projects include: Neuro-symbolic learning for cybersecurity, physics-informed neural ODEs for inertial navigation, mechanistic interpretability of transformers and low complexity interpolation for deep neural networks.
