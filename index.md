@@ -14,7 +14,7 @@ I'm a ML Engineer at **Bridgewater Associates** (AIA Labs) working on using LLMs
 
 Previously, I was a Quantitative Researcher at **Two Sigma**, developing factor-neutral cross-sectional alphas, designing feature/learner-level decorrelation, and running leakage-safe walk-forward tests (OOS rank IC/IR).
 
-Before that I earned my M.Eng. and B.S. in Computer Science at **MIT** (M.Eng GPA: 5.0/5.0). Where I wroked with Alan Edelman at the Julia Lab and Una May O'Reilly at the ALFA lab. 
+Before that I earned my M.Eng. and B.S. in Computer Science at **MIT** (M.Eng GPA: 5.0/5.0). Where I worked with Alan Edelman at the Julia Lab and Una May O'Reilly at the ALFA lab. 
 
 Outside of work, I love poker; my interest in RL started with [MIT Pokerbots](https://pokerbots.org), where I served as President.
 
