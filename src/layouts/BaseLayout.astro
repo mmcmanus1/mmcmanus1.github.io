@@ -8,7 +8,7 @@ interface Props {
 
 const {
   title = "Matt McManus",
-  description = "ML researcher specializing in LLMs, reinforcement learning, and scientific machine learning."
+  description = "Quantitative researcher specializing in LLMs, reinforcement learning, and scientific machine learning."
 } = Astro.props;
 
 const fullTitle = title === "Matt McManus" ? title : `${title} - Matt McManus`;
@@ -43,6 +43,7 @@ const fullTitle = title === "Matt McManus" ? title : `${title} - Matt McManus`;
   </script>
 </head>
 <body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
   <div class="container">
     <slot />
   </div>
