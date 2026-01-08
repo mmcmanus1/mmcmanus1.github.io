@@ -16,7 +16,7 @@ const currentPath = Astro.url.pathname;
 <BaseLayout title={title} description={description}>
   <Header />
   <Navigation currentPath={currentPath} />
-  <main>
+  <main id="main-content" tabindex="-1">
     <slot />
   </main>
   <Footer />
