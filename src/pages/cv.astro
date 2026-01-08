@@ -1,0 +1,26 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+---
+
+<PageLayout title="CV" description="Curriculum Vitae of Matt McManus">
+  <h2>Curriculum Vitae</h2>
+
+  <p>
+    <a href="/files/matt_mcmanus_pristine_v2_1page.pdf" download>
+      Download PDF
+    </a>
+  </p>
+
+  <object
+    data="/files/matt_mcmanus_pristine_v2_1page.pdf"
+    type="application/pdf"
+    width="100%"
+    height="800px"
+    style="border: 1px solid var(--color-border); border-radius: 4px;"
+  >
+    <p>
+      Your browser doesn't support embedded PDFs.
+      <a href="/files/matt_mcmanus_pristine_v2_1page.pdf">Download the CV</a> instead.
+    </p>
+  </object>
+</PageLayout>

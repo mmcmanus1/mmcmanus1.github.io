@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mmcmanus1.github.io/sitemap-index.xml
