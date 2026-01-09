@@ -1,0 +1,47 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import { getCollection } from 'astro:content';
+
+const projects = await getCollection('projects');
+const sortedProjects = projects.sort((a, b) =>
+  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+}
+---
+
+<PageLayout title="Projects" description="Side projects by Matt McManus">
+  <h2>Side Projects</h2>
+
+  {sortedProjects.map((project) => (
+    <article class="project">
+      <h3 class="project-title">
+        {project.data.projectUrl ? (
+          <a href={project.data.projectUrl} target="_blank" rel="noopener">
+            {project.data.title}
+          </a>
+        ) : (
+          project.data.title
+        )}
+      </h3>
+      <p class="project-date">{formatDate(project.data.date)}</p>
+      <p class="project-description">{project.data.description}</p>
+      {(project.data.projectUrl || project.data.repoUrl) && (
+        <div class="project-links">
+          {project.data.projectUrl && (
+            <a href={project.data.projectUrl} target="_blank" rel="noopener">
+              View Project
+            </a>
+          )}
+          {project.data.repoUrl && (
+            <a href={project.data.repoUrl} target="_blank" rel="noopener">
+              Source Code
+            </a>
+          )}
+        </div>
+      )}
+    </article>
+  ))}
+</PageLayout>

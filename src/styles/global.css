@@ -237,6 +237,36 @@ main {
   margin-right: var(--spacing-md);
 }
 
+/* Project Cards */
+.project {
+  margin-bottom: var(--spacing-lg);
+}
+
+.project-title {
+  font-weight: 600;
+  margin: 0 0 var(--spacing-xs);
+}
+
+.project-date {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin: 0 0 var(--spacing-sm);
+}
+
+.project-description {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.project-links {
+  margin-top: var(--spacing-sm);
+  font-size: 0.9rem;
+}
+
+.project-links a {
+  margin-right: var(--spacing-md);
+}
+
 /* Timeline */
 .timeline-item {
   margin-bottom: var(--spacing-lg);
