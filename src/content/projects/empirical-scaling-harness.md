@@ -1,7 +1,8 @@
 ---
 title: "Empirical Scaling Harness"
+tagline: "Scaling law research"
 date: 2025-01-13
-description: "A research toolkit for investigating power-law scaling behavior in transformer language models, automating experiments comparing activation functions across multiple parameter scales."
+description: "A controlled experimentation framework for training families of transformer models across multiple sizes and fitting scaling curves to quantify performance vs compute. It's designed to test hypotheses like 'SwiGLU changes scaling behavior vs GeLU' using parameter-matched, apples-to-apples runs and validation on held-out sizes. Net effect: evidence-driven architecture and budget decisions instead of vibes."
 repoUrl: "https://github.com/mmcmanus1/empirical-scaling-harness"
 tags: ["PyTorch", "scaling laws", "transformers", "research"]
 ---

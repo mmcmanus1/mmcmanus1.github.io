@@ -1,7 +1,8 @@
 ---
 title: "Resy Bot"
+tagline: "Automated restaurant reservations"
 date: 2024-01-01
-description: "An async Rust bot for automating restaurant reservations on Resy. Uses tokio for concurrent requests, interacting with the Resy API to find available slots and book reservations automatically."
+description: "An async Rust bot for snagging hard-to-get restaurant reservations on Resy. Built with tokio for concurrent HTTP requests, reqwest for API communication, and chrono for timezone-aware scheduling. Queries available slots, retrieves booking tokens, and submits reservations automatically."
 tags: ["Rust", "async", "tokio", "automation"]
 ---
 

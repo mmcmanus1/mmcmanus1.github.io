@@ -1,7 +1,8 @@
 ---
 title: "Elastic Training Harness"
+tagline: "Fault-tolerant distributed training"
 date: 2025-01-12
-description: "A fault-tolerant distributed training system for LLM development that automatically manages node failures and workload rebalancing, achieving sub-30 second recovery times."
+description: "A distributed PyTorch training harness built to survive node failures and cluster resizing without losing training progress or corrupting data order. It combines fast, layered checkpointing with deterministic data/token sharding so runs can resume cleanly even when the world size changes. Net effect: fewer dead runs, less wasted GPU spend, and faster recovery when hardware or networking flakes."
 repoUrl: "https://github.com/mmcmanus1/elastic-training-harness"
 tags: ["Python", "PyTorch", "distributed systems", "LLM training", "fault tolerance"]
 ---

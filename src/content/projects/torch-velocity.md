@@ -1,7 +1,8 @@
 ---
 title: "Torch-Velocity"
+tagline: "Adaptive speculative decoding"
 date: 2025-01-01
-description: "An implementation of speculative decoding with adaptive lookahead mechanisms for LLM inference optimization, achieving 1.5-2.5x speedups on transformer-based models."
+description: "An inference engine that speeds up LLM generation by using a small draft model to propose multiple tokens and a larger target model to verify them in parallel, preserving correctness with rejection sampling. It adapts the lookahead length based on real-time acceptance/entropy and manages KV cache rollback efficiently. Net effect: faster throughput and lower serving cost without changing model weights."
 repoUrl: "https://github.com/mmcmanus1/Torch-Velocity"
 tags: ["PyTorch", "LLM", "speculative decoding", "transformers"]
 ---

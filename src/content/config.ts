@@ -26,6 +26,7 @@ const projects = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
+    tagline: z.string(),
     date: z.date(),
     description: z.string(),
     projectUrl: z.string().optional(),
