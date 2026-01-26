@@ -26,6 +26,7 @@ function formatDate(date: Date): string {
           project.data.title
         )}
       </h3>
+      <p class="project-tagline">{project.data.tagline}</p>
       <p class="project-date">{formatDate(project.data.date)}</p>
       <p class="project-description">{project.data.description}</p>
       {(project.data.projectUrl || project.data.repoUrl) && (
