@@ -9,14 +9,17 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout website repo
         uses: actions/checkout@v4
 
       - name: Download latest resume from source repo
+        # Note: Source repo must be public for this to work
         run: |
-          curl -sL "https://raw.githubusercontent.com/mmcmanus1/resume-2026/main/matt-mcmanus-resume-2026.pdf" \
-            -o /tmp/latest-resume.pdf
+          curl -fL "https://raw.githubusercontent.com/mmcmanus1/resume-2026/main/matt-mcmanus-resume-2026.pdf" \
+            -o /tmp/latest-resume.pdf || exit 1
 
       - name: Check if resume changed
         id: check
@@ -40,5 +43,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add public/files/matt-mcmanus-resume-2026.pdf
-          git commit -m "Sync resume PDF from mmcmanus1/resume-2026"
+          git commit -m "Sync resume PDF from mmcmanus1/resume-2026 ($(date -u +%Y-%m-%d))"
           git push
