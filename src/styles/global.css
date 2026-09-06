@@ -127,6 +127,17 @@ code {
   font-size: 1.5rem;
 }
 
+.profile-role {
+  margin: 0 0 var(--spacing-xs);
+  font-weight: 600;
+}
+
+.profile-focus {
+  color: var(--color-text-muted);
+  margin: 0 0 var(--spacing-xs);
+  font-size: 0.95rem;
+}
+
 .profile-tagline {
   color: var(--color-text-muted);
   margin: 0 0 var(--spacing-md);
