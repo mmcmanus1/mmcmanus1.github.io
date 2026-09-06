@@ -1,7 +1,13 @@
 ---
+import ProbabilityPuzzle from './ProbabilityPuzzle.astro';
+
 const year = new Date().getFullYear();
 ---
 
 <footer>
-  <p>&copy; {year} Matt McManus</p>
+  <div class="footer-line">
+    <span>&copy; {year} Matt McManus</span>
+    <span aria-hidden="true">·</span>
+    <ProbabilityPuzzle />
+  </div>
 </footer>

@@ -1,0 +1,100 @@
+<button
+  type="button"
+  class="puzzle-trigger"
+  aria-haspopup="dialog"
+  aria-controls="probability-puzzle"
+  title="Open probability puzzle (press ?)">
+  puzzle <kbd>?</kbd>
+</button>
+
+<dialog id="probability-puzzle" class="puzzle-dialog" aria-labelledby="puzzle-title">
+  <div class="puzzle-panel">
+    <div class="puzzle-heading">
+      <div>
+        <p class="puzzle-kicker">A small probability puzzle</p>
+        <h2 id="puzzle-title">The three cards</h2>
+      </div>
+      <form method="dialog">
+        <button class="puzzle-close" aria-label="Close puzzle">×</button>
+      </form>
+    </div>
+
+    <p>
+      A bag contains three double-sided cards: <strong>RR</strong>,
+      <strong>RB</strong>, and <strong>BB</strong>. You choose a card and reveal a
+      random side. It is red.
+    </p>
+    <p><strong>What is the probability that the other side is also red?</strong></p>
+
+    <div class="puzzle-choices" aria-label="Answer choices">
+      <button type="button" data-answer="wrong">1/3</button>
+      <button type="button" data-answer="wrong">1/2</button>
+      <button type="button" data-answer="correct">2/3</button>
+    </div>
+
+    <div class="puzzle-result" hidden aria-live="polite">
+      <p class="puzzle-verdict"></p>
+      <div class="posterior-plot" role="img" aria-label="Posterior probabilities after observing a red side: RR two thirds, RB one third, BB zero">
+        <div class="posterior-row">
+          <span>RR</span>
+          <span class="posterior-track"><span class="posterior-fill posterior-two-thirds"></span></span>
+          <strong>2/3</strong>
+        </div>
+        <div class="posterior-row">
+          <span>RB</span>
+          <span class="posterior-track"><span class="posterior-fill posterior-one-third"></span></span>
+          <strong>1/3</strong>
+        </div>
+        <div class="posterior-row">
+          <span>BB</span>
+          <span class="posterior-track"><span class="posterior-fill posterior-zero"></span></span>
+          <strong>0</strong>
+        </div>
+      </div>
+      <p class="puzzle-explanation">
+        Seeing red leaves three equally likely red faces: two belong to the RR
+        card and one belongs to RB. Two of those three faces have red on the
+        reverse.
+      </p>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('#probability-puzzle');
+  const trigger = document.querySelector<HTMLButtonElement>('.puzzle-trigger');
+  const result = dialog?.querySelector<HTMLElement>('.puzzle-result');
+  const verdict = dialog?.querySelector<HTMLElement>('.puzzle-verdict');
+  const choices = dialog?.querySelectorAll<HTMLButtonElement>('[data-answer]');
+
+  const openPuzzle = () => {
+    if (dialog && !dialog.open) dialog.showModal();
+  };
+
+  trigger?.addEventListener('click', openPuzzle);
+
+  document.addEventListener('keydown', (event) => {
+    const target = event.target as HTMLElement;
+    const isTyping = target.matches('input, textarea, select') || target.isContentEditable;
+
+    if (event.key === '?' && !isTyping && !dialog?.open) {
+      event.preventDefault();
+      openPuzzle();
+    }
+  });
+
+  choices?.forEach((choice) => {
+    choice.addEventListener('click', () => {
+      if (!result || !verdict) return;
+
+      const correct = choice.dataset.answer === 'correct';
+      verdict.textContent = correct ? 'Correct — 2/3.' : 'Not quite — the answer is 2/3.';
+      result.hidden = false;
+      requestAnimationFrame(() => result.classList.add('is-revealed'));
+    });
+  });
+
+  dialog?.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+</script>
