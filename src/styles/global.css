@@ -132,10 +132,6 @@ code {
   margin: 0 0 var(--spacing-md);
 }
 
-.interests {
-  color: var(--color-text-muted);
-}
-
 /* Social Icons */
 .social-icons {
   display: flex;
