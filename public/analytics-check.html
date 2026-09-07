@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Analytics connection check</title>
+</head>
+<body>
+  <h1>Analytics connection check</h1>
+  <p>This diagnostic page checks this browser's analytics connection. Opening it may record a test page visit.</p>
+  <pre id="result">Checking…</pre>
+  <a href="/">Back to website</a>
+  <script>
+    const result = document.querySelector('#result');
+    const report = (message) => { result.textContent += '\n' + message; };
+    result.textContent = 'Browser: ' + navigator.userAgent;
+    report('Do Not Track: ' + (navigator.doNotTrack || 'not enabled'));
+    try { report('Umami opt-out: ' + Boolean(localStorage.getItem('umami.disabled'))); }
+    catch { report('Browser storage unavailable'); }
+    let completed = false;
+    const originalFetch = window.fetch.bind(window);
+    window.fetch = async (...args) => {
+      if (!String(args[0]).includes('gateway.umami.is/api/send')) return originalFetch(...args);
+      report('Sending analytics request');
+      try {
+        const response = await originalFetch(...args);
+        const data = await response.clone().json();
+        completed = true;
+        report('HTTP status: ' + response.status);
+        report('Accepted: ' + Boolean(data.cache));
+        report('Bot filter: ' + (data.beep === 'boop'));
+        report('Disabled: ' + Boolean(data.disabled));
+        return response;
+      } catch (error) {
+        completed = true;
+        report('Request failed: ' + error.message);
+        throw error;
+      }
+    };
+    setTimeout(() => {
+      if (!completed) report('No analytics response. Loaded script elements: ' + Array.from(document.scripts).filter(s => s.src).map(s => s.src).join(', '));
+    }, 8000);
+  </script>
+  <script src="/analytics.js" defer></script>
+</body>
+</html>
