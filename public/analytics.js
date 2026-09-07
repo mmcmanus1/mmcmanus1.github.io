@@ -2,16 +2,6 @@
   const domains = ['m-mcmanus.com', 'www.m-mcmanus.com', 'mmcmanus1.github.io'];
   if (!domains.includes(window.location.hostname) || navigator.doNotTrack === '1') return;
 
-  const tracker = document.createElement('script');
-  tracker.src = 'https://cloud.umami.is/script.js';
-  tracker.defer = true;
-  tracker.dataset.websiteId = 'cf6d6d80-b65a-441f-a1e0-ad139be602cd';
-  tracker.dataset.domains = domains.join(',');
-  tracker.dataset.doNotTrack = 'true';
-  tracker.dataset.excludeSearch = 'true';
-  tracker.dataset.excludeHash = 'true';
-  document.head.appendChild(tracker);
-
   // Delegation also covers links rendered later by the standalone game.
   document.addEventListener('click', (click) => {
     const link = click.target instanceof Element ? click.target.closest('a[href]') : null;

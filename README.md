@@ -47,10 +47,11 @@ Push to `main` branch to trigger GitHub Pages deployment via GitHub Actions.
 
 Umami Cloud tracks anonymous page visits, traffic sources, approximate locations,
 devices, and sessions. View results at https://cloud.umami.is/ for `m-mcmanus.com`.
-The public website ID is configured in `public/analytics.js`; no account password
+The public website ID is configured in the Astro layout and standalone SET page; no account password
 or API key is included in the website.
 
-The shared tracker is loaded by the Astro layout and the standalone SET game.
+The official tracker loads directly in each page head. Shared click handling is
+in `public/analytics.js`.
 Click events cover email links, CV PDFs, other PDFs, and outbound links, including
 links rendered after page load. PDF events measure clicks on the website, not
 completed downloads or direct visits to a PDF. Analytics starts collecting after
