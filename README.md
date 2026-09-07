@@ -60,7 +60,7 @@ activation; it does not recover historical visits or identify visitors by name.
 Tracking is restricted to the custom domains and GitHub Pages hostname, respects
 Do Not Track, and excludes query strings and URL fragments. Event destinations
 also omit queries and fragments; email clicks don't include the address. Local
-previews do not load the tracker. Ad blockers and visitor privacy settings can
+previews do not record visits. Ad blockers and visitor privacy settings can
 prevent collection. The tracker never delays or cancels link navigation.
 
 To verify a deployment, visit the live site and confirm a page view and a link
