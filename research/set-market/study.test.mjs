@@ -122,17 +122,22 @@ test('the analytic filled-sale example agrees with direct Bayes enumeration', ()
   }
 });
 
-test('the article stays a draft and production contains neither it nor its study data', () => {
+test('the approved article is published and archived posts stay excluded', () => {
   const article = read('../../src/content/blog/a-market-hidden-in-a-card-game.mdx').toString();
-  assert.match(article, /^draft: true$/m);
+  assert.match(article, /^draft: false$/m);
   const dist = new URL('../../dist/', import.meta.url);
   assert.ok(existsSync(dist), 'Run npm run build before the release guard');
-  assert.ok(!existsSync(new URL('blog/a-market-hidden-in-a-card-game/index.html', dist)));
+  for (const slug of ['a-market-hidden-in-a-card-game', 'a-neural-network-with-a-combination-lock']) {
+    const page = readFileSync(new URL(`blog/${slug}/index.html`, dist), 'utf8');
+    assert.doesNotMatch(page, /Draft for review/);
+    assert.match(page, /class="katex"/);
+    assert.ok(readFileSync(new URL('blog/index.html', dist), 'utf8').includes(`/blog/${slug}/`));
+  }
   const walk = url => readdirSync(url, {withFileTypes: true}).flatMap(entry => {
     const child = new URL(entry.name + (entry.isDirectory() ? '/' : ''), url);
     return entry.isDirectory() ? walk(child) : [child];
   });
   for (const file of walk(dist).filter(url => /\.(?:html|[cm]?js|css|json|xml|txt|md|map)$/.test(url.pathname))) {
-    assert.doesNotMatch(readFileSync(file).toString(), /The Price of Learning Too Late|set-essay-holdout-v1|set-essay-overtime-v1|69153fc743f5fd799d7e075c51e38ec012c356e8|0\.5410833333333334/);
+    assert.doesNotMatch(readFileSync(file).toString(), /\/blog\/(?:the-other-side-is-red|calibration-is-not-enough|when-is-a-probability-a-price|neural-odes-and-inertial-drift)\//);
   }
 });

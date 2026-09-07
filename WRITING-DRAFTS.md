@@ -1,5 +1,9 @@
 # Local writing series
 
+## Publication approved
+
+Matt explicitly requested publishing both retained articles: The Price of Learning Too Late and A Neural Network with a Combination Lock. Both now use draft: false. This approval supersedes the historical draft-only and no-push notes below; the four archived posts remain excluded from the website.
+
 ## Current selection (supersedes the original series below)
 
 Matt removed The Other Side Is Red, What Does It Mean to Be Calibrated?, When Is a Probability a Price?, and Research Notes: Neural ODEs and Inertial Drift from the website. Their source files are preserved in archive/blog/, outside Astro's content loader and public assets; restore them to src/content/blog/ if requested. Only The Price of Learning Too Late and A Neural Network with a Combination Lock remain listed in the local blog, both unpublished drafts. Series numbering and previous/next series links have been removed. The old welcome route remains unlisted.
