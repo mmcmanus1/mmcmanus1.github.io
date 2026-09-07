@@ -1,0 +1,130 @@
+---
+title: "What Does It Mean to Be Calibrated?"
+date: 2026-09-06
+description: "A forecast can be reliable without being informative. Let's see the difference, one probability at a time."
+tags: ["forecasting", "machine-learning"]
+draft: true
+order: 2
+---
+
+import Explorable from '../../components/Explorable.astro';
+
+You say there is an 80% chance of rain. It doesn't rain. Were you wrong?
+
+If “80%” meant anything, a dry day was one of the possibilities. A forecast that gives an event 80% should be surprised by a failure, but it shouldn't be broken by one.
+
+The useful question is what happens across many such forecasts. Among the events you call 80%, do about 80% occur? That agreement between probabilities and frequencies is **calibration**.
+
+It sounds straightforward. The complications begin when we ask how to measure it, how much evidence we have, and whether calibration is enough to make a forecast useful.
+
+## Draw the promise against the outcome
+
+Take a set of resolved binary forecasts. A binary outcome has two possibilities; encode them as $y=1$ for yes and $y=0$ for no. Each forecast is a probability $p$ between zero and one.
+
+Put forecast probability on the horizontal axis and observed event frequency on the vertical axis. A point at $(0.8,0.6)$ says: “These events were forecast at 80%, but only 60% happened.” A point on the diagonal says that the forecast and observed frequency agree.
+
+Formally, population calibration is
+
+$$
+\mathbb{E}[Y\mid P=p]=p.
+$$
+
+$P$ is the probability issued by the forecaster; $Y$ is the eventual outcome. Because $Y$ is zero or one, its average is the fraction of yes outcomes. The equation says that within the group assigned probability $p$, the event rate is $p$.
+
+Let's give ourselves a world where we actually know the event probabilities. The plot below has nine groups, with true probabilities from 10% through 90%. At confidence 1, the forecaster reports those probabilities honestly. Turn confidence above 1 and the forecasts move toward zero and one; turn it below 1 and they move toward 50%.
+
+<Explorable kind="calibration" />
+
+At confidence 1, the dots will generally miss the diagonal by a little. They are frequencies from a finite set of simulated outcomes. Increase the observations per group and the agreement usually becomes clearer, though it needn't improve monotonically at every step.
+
+At confidence above 1, the low forecasts become too low and the high forecasts too high. With more observations, that systematic pattern becomes easier to distinguish from sampling noise. More data doesn't fix the probabilities; it makes the error easier to see.
+
+For this experiment, confidence $k$ transforms a true probability $q$ into
+
+$$
+p=\frac{1}{1+\exp(-k\log(q/(1-q)))}.
+$$
+
+You don't need to memorize this function. It multiplies the log odds by $k$, giving us a smooth way to exaggerate or soften confidence. At $k=1$, $p=q$.
+
+## A perfectly boring forecaster
+
+Imagine that half the events in a population occur. Someone assigns 50% to every event. Over that population, their 50% forecasts come true half the time. They are calibrated.
+
+But they don't distinguish a likely event from an unlikely one.
+
+Now consider two equally common types of event. Type A occurs with probability 20%; type B occurs with probability 80%. The overall rate is still 50%. A second forecaster can recognize the type and predicts 20% or 80% accordingly.
+
+Both forecasters are calibrated in this population. The second gives us more information. If we need to decide when to carry an umbrella, we can act differently on an 80% day and a 20% day.
+
+This ability to distinguish event rates is often called **resolution**. Pushing every forecast toward an extreme doesn't create resolution on its own. The distinctions must correspond to differences in what happens.
+
+## Why square the error?
+
+For a binary outcome, the Brier loss is
+
+$$
+L(p,y)=(p-y)^2.
+$$
+
+This uses the single-outcome convention, where loss ranges from zero to one. Lower is better. Over many forecasts, average the losses.
+
+If you predict 80% and the event occurs, your loss is $(0.8-1)^2=0.04$. If it doesn't occur, the loss is $(0.8-0)^2=0.64$. The unlikely outcome hurts more, which is reasonable: you assigned it less probability.
+
+But why should reporting the true probability be the best strategy? Let the true chance be $q$. Before seeing the outcome, your expected loss is
+
+$$
+\begin{aligned}
+\mathbb{E}[L]
+&=q(p-1)^2+(1-q)p^2\\
+&=p^2-2pq+q\\
+&=(p-q)^2+q(1-q).
+\end{aligned}
+$$
+
+The last line is the useful one. The first term is the cost of reporting the wrong probability. The second is the uncertainty in the outcome even when you know its probability. You can minimize the first term by setting $p=q$. You can't remove the second just by speaking more confidently.
+
+<Explorable kind="brier" />
+
+The curve is a bowl centered on the true probability. Move your report away from 20% in either direction and expected loss rises. At the bottom, loss is still 0.16: knowing the odds doesn't tell you the next outcome.
+
+Return to our two forecasters. Always predicting 50% gives loss 0.25 on every event. Predicting 20% on type A and 80% on type B gives expected loss 0.16. The score rewards the useful distinction that calibration alone didn't capture.
+
+## A diagonal is not a certificate
+
+With real forecasts, we don't know the true probabilities. We group predictions into bins, compare average predictions with event rates, and try to understand the uncertainty around each point.
+
+Three things can fool us. First, small groups are noisy. For $n$ independent events with probability $q$, the standard deviation of their observed frequency is
+
+$$
+\sqrt{\frac{q(1-q)}{n}}.
+$$
+
+At $q=0.5$ and $n=100$, that's five percentage points. A visible departure from the diagonal needn't indicate a systematic defect.
+
+Second, broad bins can hide errors. A group mixing 60% and 90% forecasts might average out nicely while both ends behave poorly. It helps to show sample counts and inspect more than one binning choice.
+
+Third, forecasts can be related. Ten questions about the same election don't give the same evidence as ten independent coin flips. The uncertainty calculation above assumes independence; using it blindly can make an evaluation look more precise than it is.
+
+Calibration methods also need their own held-out evaluation. If you use the same outcomes to adjust probabilities and report how well those adjustments work, you have partly measured your ability to fit the evaluation set.
+
+## Useful alone, useful together
+
+A forecast has another possible job: add information to an existing forecast.
+
+The [AIA Forecaster report](https://arxiv.org/abs/2511.07678), which I coauthored, reports a relevant result on its prediction-market benchmark. The standalone system underperformed market consensus, while an ensemble combining the system with consensus outperformed consensus alone. That is a benchmark comparison, not a demonstrated trading return.
+
+Two estimates can make different mistakes. Combining them can help even when one is weaker by itself. Whether that complementarity persists on new data is the question that matters for evaluation.
+
+So when someone says a forecaster is good, I want to know: compared with which baseline, on which questions, with what information available at prediction time? A calibration plot is one part of that answer. It becomes much more useful alongside a proper score, sample counts, and an honest account of the experiment.
+
+<details>
+<summary>Quick check: can a correct forecast get a bad score?</summary>
+
+Yes. If the true probability is 20%, an honest 20% forecast receives loss 0.64 when the event occurs. That outcome should happen one-fifth of the time. Proper scoring rewards honest probabilities in expectation; it doesn't guarantee a small loss on every event.
+
+</details>
+
+## Further reading
+
+[Gneiting and Raftery, “Strictly Proper Scoring Rules, Prediction, and Estimation” (2007)](https://sites.stat.washington.edu/raftery/Research/PDF/Gneiting2007jasa.pdf) develops the general theory behind scores that reward honest probabilistic reports. The arithmetic and synthetic experiments here are derived explicitly above. The [AIA report](https://arxiv.org/abs/2511.07678) provides the separate empirical forecasting comparison.

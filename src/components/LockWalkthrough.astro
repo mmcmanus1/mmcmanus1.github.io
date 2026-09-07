@@ -1,0 +1,64 @@
+---
+import {createHash} from 'node:crypto';
+import {compareDigest} from '../lib/lock-walkthrough.mjs';
+const phrases=['vegetable dog','cat','bitter lesson'];
+const samples=phrases.map(phrase=>({phrase,...compareDigest(createHash('md5').update(phrase,'ascii').digest('hex'))}));
+const initial=samples[0];
+---
+<figure class="experiment walkthrough" data-lock-walkthrough data-samples={JSON.stringify(samples)}>
+  <figcaption>Follow one phrase through the whole machine</figcaption>
+  <p class="experiment-hint">The digest and comparisons below all belong to the same selected phrase. Read each byte column downward.</p>
+  <label for="walkthrough-phrase">1 · Choose the phrase</label>
+  <select id="walkthrough-phrase" data-phrase disabled>
+    {samples.slice(0,2).map((sample,i)=><option value={i}>{sample.phrase}</option>)}
+  </select>
+  <button type="button" data-reveal disabled>Reveal and trace the winning phrase (spoiler)</button>
+  <p class="step-title">↓ MD5 computes sixteen bytes</p>
+  <p>2 · Each column shows <strong>computed byte / target byte / match?</strong></p>
+  <div class="comparisons">
+    {initial.bytes.map((byte,i)=><div data-column data-match={initial.matches[i]} aria-label={`Byte ${i+1}: ${byte}, target ${initial.targets[i]}, ${initial.matches[i]?'match':'mismatch'}`}>
+      <span class="position">{i+1}</span><code data-computed>{byte}</code><code>{initial.targets[i]}</code><strong data-match-label>{initial.matches[i]?'✓':'×'}</strong>
+    </div>)}
+  </div>
+  <p class="step-title">↓ Add the matches, subtract fifteen, then apply ReLU</p>
+  <p data-result aria-live="polite" class="experiment-result">3 · {initial.count} matches − 15 = {initial.raw}. Final output: {initial.output}.</p>
+  <noscript><p>This static example traces “vegetable dog.” Enable JavaScript to switch phrases or reveal the winning trace.</p></noscript>
+  <p class="experiment-note">Reconstruction using standard-library MD5 and the recovered comparison rule. This does not execute the original neural network, including its length-encoding bug. All examples here are short ASCII inputs.</p>
+</figure>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-lock-walkthrough]').forEach(figure=>{
+    const samples=JSON.parse(figure.dataset.samples!);
+    const select=figure.querySelector<HTMLSelectElement>('[data-phrase]')!;
+    const reveal=figure.querySelector<HTMLButtonElement>('[data-reveal]')!;
+    select.disabled=false;reveal.disabled=false;
+    function update() {
+      const sample=samples[Number(select.value)];
+      figure.querySelectorAll<HTMLElement>('[data-column]').forEach((column,i)=>{
+        column.dataset.match=String(sample.matches[i]);
+        column.querySelector('[data-computed]')!.textContent=sample.bytes[i];
+        column.querySelector('[data-match-label]')!.textContent=sample.matches[i]?'✓':'×';
+        column.setAttribute('aria-label',`Byte ${i+1}: ${sample.bytes[i]}, target ${sample.targets[i]}, ${sample.matches[i]?'match':'mismatch'}`);
+      });
+      figure.querySelector('[data-result]')!.textContent=`3 · ${sample.count} matches − 15 = ${sample.raw}. Final output: ${sample.output}. ${sample.output===1?'All sixteen bytes agree.':'The final ReLU returns zero.'}`;
+    }
+    select.addEventListener('change',update);
+    reveal.addEventListener('click',()=>{
+      if(select.options.length===2) select.add(new Option(samples[2].phrase,'2'));
+      select.value='2';update();
+      reveal.textContent='Winning phrase revealed';reveal.disabled=true;select.focus();
+    });
+  });
+</script>
+<style>
+  button { display:block; margin-top:.8rem; padding:.65rem; min-height:44px; font:inherit; color:var(--color-text); background:var(--color-bg); border:1px solid var(--color-border); border-radius:4px; cursor:pointer; }
+  button:disabled { cursor:default; }
+  button:focus-visible,select:focus-visible { outline:2px solid var(--color-link); outline-offset:3px; }
+  .comparisons { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:.4rem; }
+  [data-column] { display:grid; gap:.25rem; text-align:center; border:1px dashed var(--color-border); padding:.4rem .1rem; border-radius:4px; }
+  [data-match="true"] { border-style:solid; border-color:var(--color-link); }
+  [data-match="true"] strong { color:var(--color-link); }
+  code { background:transparent; font-size:1rem; }
+  .position { font-size:.875rem; color:var(--color-text-muted); }
+  .walkthrough .step-title { margin:1.25rem 0; color:var(--color-text-muted); font-size:.875rem; }
+  @media(max-width:480px) { .comparisons { grid-template-columns:repeat(4,minmax(0,1fr)); } }
+</style>

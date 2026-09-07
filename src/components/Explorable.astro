@@ -1,0 +1,48 @@
+---
+import {definitions, model, scaleX, scaleY, pathFor} from '../lib/explainers.mjs';
+const {kind} = Astro.props;
+const def=definitions[kind];
+const values=Object.fromEntries(def.controls.map(c=>[c.key,c.value]));
+const m=model(kind,values);
+const colors=['var(--color-link)', 'var(--plot-secondary)'];
+---
+<figure class="experiment" data-experiment={kind}>
+  <figcaption id={`${kind}-caption`}>{def.title}</figcaption>
+  <p class="experiment-hint">{def.hint}</p>
+  <p class="plot-axis-label">{m.yLabel}</p>
+  <svg viewBox="0 0 560 300" role="img" aria-labelledby={`${kind}-chart-title`}>
+    <title id={`${kind}-chart-title`}>{m.result}</title>
+    {m.yTicks.map(([value,label])=><g><line x1="55" x2="520" y1={scaleY(value,m)} y2={scaleY(value,m)} stroke="var(--color-border)"/><text x="45" y={scaleY(value,m)+5} text-anchor="end">{label}</text></g>)}
+    {m.xTicks.map(([value,label])=><text x={scaleX(value,m)} y="261" text-anchor="middle">{label}</text>)}
+    {m.lines.map((line,i)=><path data-curve={i} d={pathFor(line.points,m)} fill="none" stroke={colors[i%2]} stroke-width="2.5" stroke-dasharray={line.dashed?'6 5':undefined}/>)}
+    {m.dots.map(([x,y],i)=><circle data-dot={i} cx={scaleX(x,m)} cy={scaleY(y,m)} r="5" fill="var(--color-link)" stroke="var(--color-bg)" stroke-width="1.5"/>)}
+    {m.bars.map(([x,y],i)=><g><rect data-bar={i} x={scaleX(x,m)-32} y={scaleY(y,m)} width="64" height={scaleY(0,m)-scaleY(y,m)} fill={colors[i%2]}/><text data-bar-label={i} x={scaleX(x,m)} y={scaleY(y,m)-8} text-anchor="middle">{(100*y).toFixed(1)}%</text></g>)}
+  </svg>
+  <p class="plot-axis-label plot-x-label">{m.xLabel}</p>
+  {m.lines.length>0 && <p class="legend">{m.lines.map((line,i)=><span style={`--line-color:${colors[i%2]}`} data-dashed={line.dashed||undefined}>{line.name}</span>)}</p>}
+  {def.controls.map(c=><label for={`${kind}-${c.key}`}>
+    {c.label}: <output data-value={c.key}>{c.value}{c.unit}</output>
+    <input id={`${kind}-${c.key}`} data-control={c.key} data-unit={c.unit} type="range" min={c.min} max={c.max} step={c.step} value={c.value}/>
+  </label>)}
+  <p class="experiment-result" data-result aria-live="polite">{m.result}</p>
+  <p class="experiment-note">{def.note}</p>
+</figure>
+<script>
+  import {model, scaleX, scaleY, pathFor} from '../lib/explainers.mjs';
+  document.querySelectorAll<HTMLElement>('[data-experiment]').forEach(figure=>{
+    const controls=Array.from(figure.querySelectorAll<HTMLInputElement>('[data-control]'));
+    figure.addEventListener('input',()=>{
+      const values=Object.fromEntries(controls.map(c=>[c.dataset.control,Number(c.value)]));
+      const m=model(figure.dataset.experiment,values);
+      controls.forEach(c=>{ figure.querySelector(`[data-value="${c.dataset.control}"]`)!.textContent=c.value+c.dataset.unit; });
+      m.lines.forEach((l,i)=>figure.querySelector(`[data-curve="${i}"]`)!.setAttribute('d',pathFor(l.points,m)));
+      m.dots.forEach(([x,y],i)=>{const dot=figure.querySelector(`[data-dot="${i}"]`)!; dot.setAttribute('cx',String(scaleX(x,m)));dot.setAttribute('cy',String(scaleY(y,m)));});
+      m.bars.forEach(([x,y],i)=>{
+        const bar=figure.querySelector(`[data-bar="${i}"]`)!;bar.setAttribute('y',String(scaleY(y,m)));bar.setAttribute('height',String(scaleY(0,m)-scaleY(y,m)));
+        const label=figure.querySelector(`[data-bar-label="${i}"]`)!;label.setAttribute('y',String(scaleY(y,m)-8));label.textContent=`${(100*y).toFixed(1)}%`;
+      });
+      figure.querySelector('[data-result]')!.textContent=m.result;
+      figure.querySelector('svg title')!.textContent=m.result;
+    });
+  });
+</script>

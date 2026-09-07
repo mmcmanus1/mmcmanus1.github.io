@@ -1,0 +1,87 @@
+---
+const initial = Array.from({length:16},(_,i)=>i<15);
+---
+<figure class="experiment byte-lock" data-byte-lock>
+  <figcaption>Fifteen matches. What comes out?</figcaption>
+  <p class="experiment-hint">Each tile is one byte comparison. Fifteen match, one doesn't. Predict the final output before testing the lock.</p>
+  <fieldset data-tiles disabled>
+    <legend>Byte comparisons · ✓ matches · × differs</legend>
+    <div class="byte-grid">
+      {initial.map((matches,i)=><button type="button" data-byte={i} aria-pressed={matches} aria-label={`Byte ${i+1} matches`}><span>{String(i+1).padStart(2,'0')}</span><strong data-symbol>{matches?'✓':'×'}</strong></button>)}
+    </div>
+  </fieldset>
+  <fieldset data-predictions disabled>
+    <legend>Your prediction</legend>
+    <div class="prediction-options">
+      <button type="button" data-guess="0">0 · still locked</button>
+      <button type="button" data-guess="0.9375">15/16 · almost there</button>
+      <button type="button" data-guess="1">1 · accepted</button>
+    </div>
+  </fieldset>
+  <p data-feedback aria-live="polite" class="experiment-result"></p>
+  <div data-lock-explanation hidden>
+    <p data-calculation class="lock-calculation"></p>
+    <p>Now toggle any tile. Can you produce an output strictly between 0 and 1?</p>
+    <button type="button" data-reset>Reset the prediction</button>
+  </div>
+  <noscript><p>With fifteen matches, the output is max(0, 15 − 15) = 0. With sixteen, it is 1. Enable JavaScript to predict and toggle individual comparisons.</p></noscript>
+  <p class="experiment-note">Reconstructed integer comparison circuit. These tiles control hypothetical byte matches directly; they are not editable characters or a run of the original network.</p>
+</figure>
+<script>
+  import {reluLock} from '../lib/explainers.mjs';
+  document.querySelectorAll<HTMLElement>('[data-byte-lock]').forEach(figure=>{
+    const tiles=Array.from(figure.querySelectorAll<HTMLButtonElement>('[data-byte]'));
+    const tileField=figure.querySelector<HTMLFieldSetElement>('[data-tiles]')!;
+    const predictions=figure.querySelector<HTMLFieldSetElement>('[data-predictions]')!;
+    const feedback=figure.querySelector<HTMLElement>('[data-feedback]')!;
+    const explanation=figure.querySelector<HTMLElement>('[data-lock-explanation]')!;
+    const calculation=figure.querySelector<HTMLElement>('[data-calculation]')!;
+    let matches=tiles.map((_,i)=>i<15);
+    predictions.disabled=false;
+    function update() {
+      tiles.forEach((tile,i)=>{
+        tile.setAttribute('aria-pressed',String(matches[i]));
+        tile.querySelector('[data-symbol]')!.textContent=matches[i]?'✓':'×';
+      });
+      const count=matches.filter(Boolean).length;
+      const output=reluLock(matches.map(match=>match?0:1));
+      calculation.textContent=`${count} matches → subtract 15 → ${count-15} → discard negative values → ${output}`;
+      return {count,output};
+    }
+    figure.querySelectorAll<HTMLButtonElement>('[data-guess]').forEach(button=>button.addEventListener('click',()=>{
+      const correct=Number(button.dataset.guess)===0;
+      feedback.textContent=correct?'Yes: 0. This is an all-or-nothing test, not an average.':'The output is 0. Fifteen out of sixteen sounds close, but this circuit does not average the matches.';
+      explanation.hidden=false;
+      predictions.disabled=true;
+      tileField.disabled=false;
+      update();
+      tiles[15].focus();
+    }));
+    tiles.forEach((tile,i)=>tile.addEventListener('click',()=>{
+      matches[i]=!matches[i];
+      const {count,output}=update();
+      feedback.textContent=`${count} of 16 match. Output: ${output}. ${output===1?'Every comparison passes.':'Even one mismatch keeps the output at zero.'}`;
+    }));
+    figure.querySelector('[data-reset]')!.addEventListener('click',()=>{
+      matches=tiles.map((_,i)=>i<15); update();
+      tileField.disabled=true; predictions.disabled=false; explanation.hidden=true; feedback.textContent='Prediction reset: fifteen matches and one mismatch.';
+      figure.querySelector<HTMLButtonElement>('[data-guess]')!.focus();
+    });
+  });
+</script>
+<style>
+  fieldset { border:0; padding:0; margin:1.25rem 0; min-width:0; }
+  legend { font-size:.875rem; margin-bottom:.6rem; }
+  button { font:inherit; color:var(--color-text); background:var(--color-bg); border:1px solid var(--color-border); border-radius:4px; padding:.6rem .75rem; cursor:pointer; min-height:44px; }
+  button:focus-visible { outline:2px solid var(--color-link); outline-offset:3px; }
+  button:disabled { cursor:default; }
+  .byte-grid { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:.4rem; }
+  .byte-grid button { display:grid; gap:.25rem; padding:.4rem .1rem; }
+  .byte-grid span { font-size:.875rem; }
+  .byte-grid strong { font-size:1.2rem; }
+  .byte-grid [aria-pressed="true"] { border-color:var(--color-link); color:var(--color-link); }
+  .byte-grid [aria-pressed="false"] { border-style:dashed; }
+  .prediction-options { display:flex; flex-wrap:wrap; gap:.5rem; }
+  .lock-calculation { font-variant-numeric:tabular-nums; padding-block:1rem; border-block:1px solid var(--color-border); }
+  @media(max-width:480px) { .byte-grid { grid-template-columns:repeat(4,minmax(0,1fr)); } }
+</style>

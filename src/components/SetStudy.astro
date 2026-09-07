@@ -1,0 +1,154 @@
+---
+import study from '../data/set-market-study.json';
+import {comparison, comparisonX, roomLabels, timeline, timelinePath, timeX, errorY, fixed} from '../lib/set-study.mjs';
+const {kind = 'comparison'} = Astro.props;
+const initial = comparison(study);
+const selected = timeline(study, 0);
+const colors = ['var(--color-link)', 'var(--plot-secondary)'];
+const names = ['Listener · watches trades', 'Researcher · ignores trades'];
+const id = `set-study-${kind}`;
+// Research data are embedded only in an actually rendered draft page. Do not
+// import the data into client JS: unused client assets can survive production.
+const clientData = {
+  runs: study.runs.map(run => ({...run, metrics: {
+    mse: run.metrics.mse, pnl: run.metrics.pnl,
+    beliefTimeline: run.metrics.beliefTimeline,
+  }})),
+  pairs: study.pairs,
+};
+---
+<figure class="experiment set-study" data-set-study={kind}>
+  <script type="application/json" data-study-values set:html={JSON.stringify(clientData).replace(/</g, '\\u003c')} />
+  {kind === 'comparison' ? <>
+    <figcaption id={`${id}-caption`}>A better final answer. A smaller trading profit.</figcaption>
+    <p class="experiment-hint">Measured on 12,000 fresh boards per setting. Listener watches completed trades. Researcher ignores them and always starts with 65% recall.</p>
+    <div class="study-controls">
+      <label for={`${id}-room`}>Other players
+        <select id={`${id}-room`} data-room>
+          {Object.entries(roomLabels).map(([value, label]) => <option value={value}>{label}</option>)}
+        </select>
+      </label>
+      <label for={`${id}-recall`}>Listener’s opening recall
+        <select id={`${id}-recall`} data-recall>
+          <option value="0.25">25%</option>
+          <option value="0.5" selected>50% · starting comparison</option>
+          <option value="0.65">65% · match Researcher</option>
+          <option value="0.85">85%</option>
+        </select>
+      </label>
+    </div>
+    {initial.charts.map(chart => <div data-study-chart={chart.key}>
+      <p class="study-chart-label">{chart.key === 'mse' ? 'Final prediction error · lower is better · points²' : 'Average trading profit · higher is better · points / round'}</p>
+      <svg viewBox="0 0 560 195" role="img" aria-labelledby={`${id}-${chart.key}-title`}>
+        <title id={`${id}-${chart.key}-title`}>{chart.key}: Listener {fixed(chart.values[0].mean)}, Researcher {fixed(chart.values[1].mean)}. Whiskers show pointwise 95% Monte Carlo intervals.</title>
+        {chart.ticks.map((value, i) => <g>
+          <line x1={comparisonX(value, chart)} x2={comparisonX(value, chart)} y1="52" y2="157" stroke="var(--color-border)" />
+          <text x={comparisonX(value, chart)} y="183" text-anchor="middle" data-tick={i}>{value.toFixed(2)}</text>
+        </g>)}
+        {chart.values.map((value, i) => <g data-estimate={i}>
+          <text x="42" y={33 + i * 70}>{names[i]}</text>
+          <text x="512" y={33 + i * 70} text-anchor="end" data-mean>{fixed(value.mean)}</text>
+          <line data-whisker x1={comparisonX(value.low, chart)} x2={comparisonX(value.high, chart)} y1={59 + i * 70} y2={59 + i * 70} stroke={colors[i]} stroke-width="3" />
+          <line data-low x1={comparisonX(value.low, chart)} x2={comparisonX(value.low, chart)} y1={52 + i * 70} y2={66 + i * 70} stroke={colors[i]} stroke-width="2" />
+          <line data-high x1={comparisonX(value.high, chart)} x2={comparisonX(value.high, chart)} y1={52 + i * 70} y2={66 + i * 70} stroke={colors[i]} stroke-width="2" />
+          <circle data-point cx={comparisonX(value.mean, chart)} cy={59 + i * 70} r="5" fill={colors[i]} />
+        </g>)}
+      </svg>
+    </div>)}
+    <p class="experiment-result" data-study-result aria-live="polite">{initial.result}</p>
+    <p class="experiment-note" data-study-interval>{initial.interval}</p>
+    <p class="experiment-note">Brackets are paired 95% Monte Carlo intervals. They measure simulation uncertainty, not uncertainty about real markets. Try 65% to isolate the trade update, then replace the other players with three prior-only agents.</p>
+  </> : <>
+    <figcaption id={`${id}-caption`}>Rewind the round: when does Listener catch up?</figcaption>
+    <p class="experiment-hint">The original comparison: 50% recall with trades versus 65% without. Two research-informed opponents and one prior-only opponent.</p>
+    <p class="plot-axis-label">Average squared prediction error · lower is better</p>
+    <svg data-study-timeline viewBox="0 0 560 290" role="img" aria-labelledby={`${id}-title`}>
+      <title id={`${id}-title`}>Listener begins at {fixed(initial.listener.metrics.beliefTimeline[0].mean)} error and ends at {fixed(initial.listener.metrics.mse.mean)}. Researcher begins at {fixed(initial.researcher.metrics.beliefTimeline[0].mean)} and ends at {fixed(initial.researcher.metrics.mse.mean)}. Listener first pulls ahead after closing quote 3.</title>
+      {[0, .4, .8, 1.2].map(value => <g>
+        <line x1="52" x2="512" y1={errorY(value)} y2={errorY(value)} stroke="var(--color-border)" />
+        <text x="42" y={errorY(value) + 5} text-anchor="end">{value.toFixed(1)}</text>
+      </g>)}
+      <rect x={timeX(4) + 10} y="30" width={timeX(5) - timeX(4) - 20} height="214" fill="var(--color-text-muted)" opacity=".06" />
+      {[initial.listener, initial.researcher].map((run, i) => <g>
+        <path d={timelinePath(run.metrics.beliefTimeline)} fill="none" stroke={colors[i]} stroke-width="2.5" stroke-dasharray={i ? '7 5' : undefined} />
+        {run.metrics.beliefTimeline.map((value, index) => <circle cx={timeX(index)} cy={errorY(value.mean)} r="3" fill={colors[i]} />)}
+        <circle data-current-point={i} cx={timeX(0)} cy={errorY(selected.values[i])} r="6" fill={colors[i]} stroke="var(--color-bg)" stroke-width="2" />
+      </g>)}
+      <line data-time-cursor x1={timeX(0)} x2={timeX(0)} y1="30" y2="244" stroke="var(--color-text-muted)" stroke-dasharray="3 4" />
+      {[[0, 'Start'], [4, 'Open end'], [5, 'Research'], [9, 'Finish']].map(([index, label]) => <text x={timeX(Number(index))} y="276" text-anchor="middle">{label}</text>)}
+    </svg>
+    <p class="legend"><span style={`--line-color:${colors[0]}`}>Listener · 50% + trades</span><span style={`--line-color:${colors[1]}`} data-dashed>Researcher · 65%, no trades</span></p>
+    <label for={`${id}-time`}>Move through the round
+      <input id={`${id}-time`} data-study-time type="range" min="0" max="9" step="1" value="0" aria-valuetext="Before any trading" />
+    </label>
+    <p class="experiment-result" data-study-result aria-live="polite">{selected.result}</p>
+    <p class="experiment-note">Dots are measured means after each step; connecting lines guide the eye. The pale band is the second research pass. The last observation is before settlement, but after every trading opportunity.</p>
+  </>}
+  <noscript><p class="experiment-note">JavaScript is off. These are the measured results for the starting comparison; interactive controls require JavaScript.</p></noscript>
+</figure>
+
+<script>
+  import {comparison, comparisonX, timeline, timelineLabels, timeX, errorY, fixed} from '../lib/set-study.mjs';
+  document.querySelectorAll<HTMLElement>('[data-set-study]').forEach(figure => {
+    const data = JSON.parse(figure.querySelector('[data-study-values]')!.textContent!);
+    if (figure.dataset.setStudy === 'comparison') {
+      figure.addEventListener('change', () => {
+        const room = figure.querySelector<HTMLSelectElement>('[data-room]')!.value;
+        const recall = Number(figure.querySelector<HTMLSelectElement>('[data-recall]')!.value);
+        const current = comparison(data, room, recall);
+        for (const chart of current.charts) {
+          const plot = figure.querySelector(`[data-study-chart="${chart.key}"]`)!;
+          chart.ticks.forEach((value, i) => { plot.querySelector(`[data-tick="${i}"]`)!.textContent = value.toFixed(2); });
+          chart.values.forEach((value, i) => {
+            const group = plot.querySelector(`[data-estimate="${i}"]`)!;
+            group.querySelector('[data-mean]')!.textContent = fixed(value.mean);
+            const left = String(comparisonX(value.low, chart));
+            const right = String(comparisonX(value.high, chart));
+            group.querySelector('[data-whisker]')!.setAttribute('x1', left);
+            group.querySelector('[data-whisker]')!.setAttribute('x2', right);
+            for (const end of ['x1', 'x2']) {
+              group.querySelector('[data-low]')!.setAttribute(end, left);
+              group.querySelector('[data-high]')!.setAttribute(end, right);
+            }
+            group.querySelector('[data-point]')!.setAttribute('cx', String(comparisonX(value.mean, chart)));
+          });
+          plot.querySelector('title')!.textContent = `${chart.key}: Listener ${fixed(chart.values[0].mean)}, Researcher ${fixed(chart.values[1].mean)}. Whiskers show pointwise 95% Monte Carlo intervals.`;
+        }
+        figure.querySelector('[data-study-result]')!.textContent = current.result;
+        figure.querySelector('[data-study-interval]')!.textContent = current.interval;
+      });
+    } else {
+      const control = figure.querySelector<HTMLInputElement>('[data-study-time]')!;
+      control.addEventListener('input', () => {
+        const index = Number(control.value);
+        const current = timeline(data, index);
+        const x = String(timeX(index));
+        const cursor = figure.querySelector('[data-time-cursor]')!;
+        cursor.setAttribute('x1', x); cursor.setAttribute('x2', x);
+        current.values.forEach((value, i) => {
+          const point = figure.querySelector(`[data-current-point="${i}"]`)!;
+          point.setAttribute('cx', x); point.setAttribute('cy', String(errorY(value)));
+        });
+        control.setAttribute('aria-valuetext', timelineLabels[index]);
+        figure.querySelector('[data-study-result]')!.textContent = current.result;
+      });
+    }
+  });
+</script>
+
+<style>
+  .study-controls { display: grid; grid-template-columns: 1fr; gap: .75rem; margin-block: 1rem 1.5rem; }
+  .study-controls label { margin: 0; font-size: .9375rem; }
+  .study-controls select { display: block; width: 100%; margin-top: .35rem; }
+  .study-controls select:focus-visible { outline: 2px solid var(--color-link); outline-offset: 3px; }
+  .set-study .study-chart-label { font-size: .9375rem; font-weight: 600; margin: 1.75rem 0 .25rem; }
+  .set-study svg text { font-size: 18px; }
+  .set-study svg { margin: .5rem 0 1rem; }
+  .set-study [data-study-chart] + [data-study-chart] { border-top: 1px solid var(--color-border); }
+  .set-study .experiment-note { font-variant-numeric: tabular-nums; }
+  @media (max-width: 480px) {
+    .set-study { padding-inline: .55rem; }
+    .set-study svg text { font-size: 23px; }
+    .set-study [data-study-timeline] text { font-size: 20px; }
+  }
+</style>

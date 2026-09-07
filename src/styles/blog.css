@@ -1,0 +1,44 @@
+:root { --plot-secondary: #a34c00; }
+[data-theme="dark"] { --plot-secondary: #ffb369; }
+.essay { font-size: 1.0625rem; line-height: 1.8; }
+.essay-back, .draft-note { font-size: .875rem; color: var(--color-text-muted); }
+.essay-header { margin: 1.5rem 0 2rem; }
+.essay-header h1 { font-size: clamp(1.8rem, 5vw, 2.4rem); letter-spacing: -.025em; margin: .5rem 0 1rem; }
+.essay-deck { font-size: 1.125rem; color: var(--color-text-muted); }
+.essay-body h2 { margin-top: 3rem; font-size: 1.4rem; scroll-margin-top: 1rem; }
+.essay-body h3 { margin-top: 2rem; }
+.essay-body p { margin-bottom: 1.35rem; }
+.essay-body a { text-decoration: underline; text-underline-offset: .15em; }
+.essay-body blockquote { margin: 1.75rem 0; padding: .25rem 0 .25rem 1.25rem; border-left: 3px solid var(--color-link); }
+.essay-body blockquote p:last-child { margin: 0; }
+.essay-contents { border-block: 1px solid var(--color-border); padding: .75rem 0; margin-bottom: 2rem; font-size: .9375rem; }
+.essay-contents summary, .essay-body details summary { cursor: pointer; }
+.essay-contents ol { margin: .75rem 0; }
+.essay-body details { margin: 1.5rem 0; border: 1px solid var(--color-border); border-radius: 4px; padding: 1rem; }
+.essay-body details p:last-child { margin-bottom: 0; }
+.essay .katex { font-size: 1.08em; }
+.essay .katex-display { overflow-x: auto; overflow-y: hidden; padding: .75rem .15rem; margin: 1.5rem 0; }
+.series-nav { display: grid; gap: 1rem; border-top: 1px solid var(--color-border); margin-top: 3rem; padding-top: 1.5rem; font-size: .9375rem; }
+.experiment { margin: 2rem 0; padding: 1.25rem; border: 1px solid var(--color-border); border-radius: 6px; font-size: 1rem; line-height: 1.6; }
+.experiment figcaption { font-weight: 600; margin-bottom: .4rem; }
+.experiment .experiment-hint, .experiment .experiment-note { color: var(--color-text-muted); font-size: .875rem; }
+.experiment .experiment-note { margin: 1rem 0 0; }
+.experiment .plot-axis-label { font-size: .875rem; margin: .75rem 0 -.75rem; }
+.experiment .plot-x-label { text-align: center; margin: -1.5rem 0 1rem; }
+.experiment svg { width: 100%; height: auto; display: block; overflow: visible; margin: 1rem 0; }
+.experiment svg text { fill: var(--color-text); font: 15px var(--font-sans); }
+.experiment label { display: block; margin-top: 1rem; }
+.experiment input { display: block; width: 100%; margin: .65rem 0; accent-color: var(--color-link); }
+.experiment input:focus-visible, summary:focus-visible { outline: 2px solid var(--color-link); outline-offset: 4px; }
+.experiment select { font: inherit; color: var(--color-text); background: var(--color-bg); padding: .4rem; max-width: 100%; }
+.experiment output { font-variant-numeric: tabular-nums; }
+.experiment .experiment-result { margin: 1rem 0 0; font-weight: 600; }
+.experiment .legend { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin: 0; font-size: .875rem; }
+.experiment .legend span::before { content: ''; display: inline-block; width: 1.3rem; border-top: 2px solid var(--line-color); vertical-align: middle; margin-right: .4rem; }
+.experiment .legend span[data-dashed]::before { border-top-style: dashed; }
+.post-list li { padding: 1.25rem 0; border-bottom: 1px solid var(--color-border); margin: 0; }
+.post-list li > a { display: block; font-size: 1.15rem; font-weight: 600; }
+.post-list li > p { color: var(--color-text-muted); margin: .4rem 0 0; }
+.experiment [data-bar], .experiment [data-dot], .experiment [data-bar-label] { transition: all 160ms ease-out; }
+@media (prefers-reduced-motion: reduce) { .experiment [data-bar], .experiment [data-dot], .experiment [data-bar-label] { transition: none; } }
+@media (max-width: 480px) { .experiment { padding: .85rem; } .essay { font-size: 1rem; } .experiment svg text { font-size: 24px; } }

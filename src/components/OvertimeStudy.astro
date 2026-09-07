@@ -1,0 +1,92 @@
+---
+import data from '../../research/set-market/results/overtime.json';
+import {overtimeModel, overtimeX, overtimeY, overtimePath} from '../lib/overtime-study.mjs';
+const initial = overtimeModel(data);
+const colors = ['var(--color-link)', 'var(--plot-secondary)'];
+const ticks = [-.2, 0, .2];
+---
+<figure class="experiment overtime-study" data-overtime-study>
+  <script type="application/json" data-overtime-values set:html={JSON.stringify({contrasts: data.contrasts}).replace(/</g, '\\u003c')} />
+  <figcaption>More time, or more room to trade?</figcaption>
+  <p class="experiment-hint">A follow-up on 12,000 new paired boards. Above zero, Listener earns more. Below zero, Researcher earns more. The two lines use different taker-trade allowances.</p>
+  <div class="overtime-controls">
+    <label for="overtime-room">Other players
+      <select id="overtime-room" data-overtime-room>
+        <option value="mixed">Two researchers + one prior-only player</option>
+        <option value="informed">Three researchers</option>
+      </select>
+    </label>
+    <label for="overtime-point">Inspect an endpoint
+      <select id="overtime-point" data-overtime-point>
+        {[0, 4, 8, 16].map(extra => <option value={extra} selected={extra === 16}>{extra} extra quote windows</option>)}
+      </select>
+    </label>
+  </div>
+  <p class="plot-axis-label">Profit difference · points per round</p>
+  <svg viewBox="0 0 560 300" role="img" aria-labelledby="overtime-title">
+    <title id="overtime-title">{initial.result} Whiskers are pointwise paired 95% Monte Carlo intervals.</title>
+    {ticks.map(value => <g>
+      <line x1="52" x2="512" y1={overtimeY(value)} y2={overtimeY(value)} stroke={value === 0 ? 'var(--color-text-muted)' : 'var(--color-border)'} stroke-width={value === 0 ? 1.5 : 1} />
+      <text x="42" y={overtimeY(value) + 5} text-anchor="end">{value > 0 ? '+' : ''}{value.toFixed(1)}</text>
+    </g>)}
+    {[0, 4, 8, 16].map(extra => <text x={overtimeX(extra)} y="278" text-anchor="middle">{extra}</text>)}
+    <line data-overtime-cursor x1={overtimeX(16)} x2={overtimeX(16)} y1="30" y2="244" stroke="var(--color-border)" stroke-dasharray="3 4" />
+    {initial.series.map((series, i) => <g data-overtime-series={i}>
+      <path data-curve d={overtimePath(series.points)} stroke={colors[i]} fill="none" stroke-width="2.5" stroke-dasharray={i ? '7 5' : undefined} />
+      {series.points.map((point, j) => <g data-overtime-dot={j}>
+        <line data-ci x1={overtimeX(point.extra)} x2={overtimeX(point.extra)} y1={overtimeY(point.pnl.low)} y2={overtimeY(point.pnl.high)} stroke={colors[i]} stroke-width="2" opacity=".55" />
+        <line data-low x1={overtimeX(point.extra) - 5} x2={overtimeX(point.extra) + 5} y1={overtimeY(point.pnl.low)} y2={overtimeY(point.pnl.low)} stroke={colors[i]} stroke-width="2" />
+        <line data-high x1={overtimeX(point.extra) - 5} x2={overtimeX(point.extra) + 5} y1={overtimeY(point.pnl.high)} y2={overtimeY(point.pnl.high)} stroke={colors[i]} stroke-width="2" />
+        <circle data-point cx={overtimeX(point.extra)} cy={overtimeY(point.pnl.mean)} r={i ? 5 : 3} fill={i ? 'var(--color-bg)' : colors[i]} stroke={colors[i]} stroke-width="2" />
+      </g>)}
+    </g>)}
+  </svg>
+  <p class="plot-axis-label plot-x-label">Extra quote windows beyond the normal eight</p>
+  <p class="legend"><span style={`--line-color:${colors[0]}`}>Original allowance</span><span style={`--line-color:${colors[1]}`} data-dashed>Refreshed allowance</span></p>
+  <p class="experiment-result" data-overtime-caption>{initial.caption}</p>
+  <div aria-live="polite">
+    {initial.series.map((series, i) => <p class="overtime-readout"><strong>{series.label}:</strong> <span data-overtime-result={i}>{series.result}</span></p>)}
+  </div>
+  <p class="experiment-note">Original: four taker fills across the entire extended round. Refreshed: restore everyone to four before each extra block of four quotes. Cash and inventory carry through. No new private research; trade-based learning continues. These are measured endpoints, not a continuous fitted curve.</p>
+  <noscript><p class="experiment-note">JavaScript is off. The graph shows the mixed roster; numerical readouts show 16 extra windows.</p></noscript>
+</figure>
+<script>
+  import {overtimeModel, overtimeY, overtimeX, overtimePath} from '../lib/overtime-study.mjs';
+  document.querySelectorAll<HTMLElement>('[data-overtime-study]').forEach(figure => {
+    const data = JSON.parse(figure.querySelector('[data-overtime-values]')!.textContent!);
+    figure.addEventListener('change', () => {
+      const room = figure.querySelector<HTMLSelectElement>('[data-overtime-room]')!.value;
+      const extra = Number(figure.querySelector<HTMLSelectElement>('[data-overtime-point]')!.value);
+      const state = overtimeModel(data, room, extra);
+      state.series.forEach((series, i) => {
+        const group = figure.querySelector(`[data-overtime-series="${i}"]`)!;
+        group.querySelector('[data-curve]')!.setAttribute('d', overtimePath(series.points));
+        series.points.forEach((point, j) => {
+          const dot = group.querySelector(`[data-overtime-dot="${j}"]`)!;
+          const low = String(overtimeY(point.pnl.low)), high = String(overtimeY(point.pnl.high));
+          dot.querySelector('[data-ci]')!.setAttribute('y1', low);
+          dot.querySelector('[data-ci]')!.setAttribute('y2', high);
+          for (const attr of ['y1', 'y2']) {
+            dot.querySelector('[data-low]')!.setAttribute(attr, low);
+            dot.querySelector('[data-high]')!.setAttribute(attr, high);
+          }
+          dot.querySelector('[data-point]')!.setAttribute('cy', String(overtimeY(point.pnl.mean)));
+        });
+        figure.querySelector(`[data-overtime-result="${i}"]`)!.textContent = series.result;
+      });
+      figure.querySelector('[data-overtime-caption]')!.textContent = state.caption;
+      figure.querySelector('title')!.textContent = `${state.result} Whiskers are pointwise paired 95% Monte Carlo intervals.`;
+      const cursor = figure.querySelector('[data-overtime-cursor]')!;
+      cursor.setAttribute('x1', String(overtimeX(extra))); cursor.setAttribute('x2', String(overtimeX(extra)));
+    });
+  });
+</script>
+<style>
+  .overtime-controls { display: grid; gap: .75rem; margin: 1.25rem 0; }
+  .overtime-controls label { margin: 0; font-size: .9375rem; }
+  .overtime-controls select { display: block; width: 100%; margin-top: .3rem; }
+  .overtime-controls select:focus-visible { outline: 2px solid var(--color-link); outline-offset: 3px; }
+  .overtime-study .overtime-readout { font-size: .9375rem; margin: .65rem 0; font-variant-numeric: tabular-nums; }
+  .overtime-study svg text { font-size: 19px; }
+  @media (max-width: 480px) { .overtime-study svg text { font-size: 25px; } }
+</style>

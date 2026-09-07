@@ -1,17 +1,20 @@
 ---
 import PageLayout from '../../layouts/PageLayout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
+import 'katex/dist/katex.min.css';
+import '../../styles/blog.css';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
+  const posts = await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft);
   return posts.map((post) => ({
-    params: { slug: post.slug },
+    params: { slug: post.id },
     props: { post },
   }));
 }
 
 const { post } = Astro.props;
-const { Content } = await post.render();
+const { Content, headings } = await render(post);
+const minutes = Math.max(1, Math.ceil((post.body ?? '').split(/\s+/).length / 200));
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString('en-US', {
@@ -23,9 +26,18 @@ function formatDate(date: Date): string {
 ---
 
 <PageLayout title={post.data.title} description={post.data.description}>
-  <article>
-    <h2>{post.data.title}</h2>
-    <p class="post-date">{formatDate(post.data.date)}</p>
-    <Content />
+  <article class="essay">
+    <a class="essay-back" href="/blog/">← All writing</a>
+    <header class="essay-header">
+      <p class="post-date">{minutes} min read</p>
+      <h1>{post.data.title}</h1>
+      <p class="essay-deck">{post.data.description}</p>
+      {post.data.draft ? <p class="draft-note">Draft for review · not published</p> : <p class="post-date">{formatDate(post.data.date)}</p>}
+    </header>
+    {headings.length > 0 && <details class="essay-contents">
+      <summary>In this piece</summary>
+      <ol>{headings.filter((h) => h.depth === 2).map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
+    </details>}
+    <div class="essay-body"><Content /></div>
   </article>
 </PageLayout>

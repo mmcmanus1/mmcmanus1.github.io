@@ -3,6 +3,7 @@ title: "Welcome to My Blog"
 date: 2025-09-27
 description: "An introduction to my new blog where I'll share thoughts on ML research."
 tags: ["introduction", "personal"]
+unlisted: true
 ---
 
 Welcome to my blog! I'll be using this space to share my thoughts on ML research, interesting papers I've read, and lessons learned from building AI systems.

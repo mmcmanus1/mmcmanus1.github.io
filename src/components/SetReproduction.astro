@@ -1,0 +1,54 @@
+---
+import runner from '../../research/set-market/experiment.mjs?raw';
+import summarize from '../../research/set-market/summarize.mjs?raw';
+import data from '../data/set-market-study.json';
+import overtime from '../../research/set-market/overtime.mjs?raw';
+import adapter from '../../research/set-market/overtime-adapter.mjs?raw';
+import overtimeData from '../../research/set-market/results/overtime.json';
+---
+<details class="study-reproduction">
+  <summary>Methods, code, and numerical results</summary>
+  <p>The experiment uses the public game at <a href={`https://github.com/mmcmanus1/set-mm-game/tree/${data.protocol.gameCommit}`}>commit {data.protocol.gameCommit.slice(0, 7)}</a>. All variants use the smart policy with risk aversion 0.065 and action threshold 0.04. The on/off ablation suppresses only that policy’s trade-observation callback.</p>
+  <p>Research-informed opponents use the game’s unchanged informed policy: 65% opening recall and 35% incremental closing recall. Prior-only opponents do no board research. Neither opponent type learns from completed trades. These are not copies of the evaluated smart policy.</p>
+  <p>Each round resets cash and inventory. There are eight quote windows, a maximum of four taker fills per player, and no maker-fill cap. All profits settle to exactly zero when summed across players. Agents receive simulated discoveries and public trades, never the oracle count, board cards, or board seed.</p>
+  <p>The prior uses 50,000 independently seeded boards with a 0.5 pseudocount per possible value, 0–14. Holdout seed: <code>{data.protocol.seed}</code>. Prior seed: <code>{data.protocol.priorSeed}</code>. The 600-board exploratory seed was <code>set-essay-pilot-v1</code>; the headline comparison was selected there before the holdout evaluation.</p>
+  <p>Intervals use the mean ± 1.96 standard errors. For a comparison, the observations are within-board differences. They are pointwise intervals without multiple-comparison adjustment, conditional on the simulator and fixed calibrated prior—not guarantees about other games or real trading.</p>
+  <p>To reproduce, build that clean game revision with Node 22 or later, save the experiment code as <code>research/set-market/experiment.mjs</code>, and run:</p>
+  <pre><code>SET_ESSAY_RECALLS=0.25,0.5,0.65,0.85 node research/set-market/experiment.mjs /path/to/set-mm-game holdout 12000</code></pre>
+  <p>The runner writes aggregate results and paired per-round records beside itself. The second script derives the plotted dataset from those files. No simulation runs in your browser; the controls select measured settings.</p>
+  <h3>The overtime follow-up</h3>
+  <p>The added endpoints (0, 4, 8, and 16 windows), both allowance rules, and both opponent rosters were fixed before running this follow-up. It uses a separate 12,000-board sample, seed <code>{overtimeData.protocol.seed}</code>, with the same independently calibrated prior. It is not a retuning of the bots on the first experiment.</p>
+  <p>A research-only adapter resumes the unchanged engine in its closing stage, repeating the closing maker order each block. The original game is not edited. The original-cap treatment preserves remaining taker fills; the refill treatment restores every player to four before each extra block. Neither resets cash, inventory, private evidence, or trade-based beliefs. Listener continues learning from completed trades.</p>
+  <p>Reported endpoints share prefixes of the same simulated path. The policies do not anticipate the ending time, so the path up to an endpoint is unchanged by allowing it to continue. Settlement values are used only to score immutable evaluation copies, never revealed to a continuing agent. Intervals for improvement use per-board changes in the Listener–Researcher gap.</p>
+  <p>After running the original experiment, save these next two code blocks as <code>research/set-market/overtime.mjs</code> and <code>research/set-market/overtime-adapter.mjs</code>, then run:</p>
+  <pre><code>node research/set-market/overtime.mjs /path/to/set-mm-game overtime 12000</code></pre>
+  <details>
+    <summary>Experiment code</summary>
+    <pre><code>{runner}</code></pre>
+  </details>
+  <details>
+    <summary>Dataset-generation code</summary>
+    <pre><code>{summarize}</code></pre>
+  </details>
+  <details>
+    <summary>All plotted results and paired differences (JSON)</summary>
+    <pre><code>{JSON.stringify(data, null, 2)}</code></pre>
+  </details>
+  <details>
+    <summary>Overtime experiment code</summary>
+    <pre><code>{overtime}</code></pre>
+  </details>
+  <details>
+    <summary>Research-only continuation adapter</summary>
+    <pre><code>{adapter}</code></pre>
+  </details>
+  <details>
+    <summary>Overtime results and paired differences (JSON)</summary>
+    <pre><code>{JSON.stringify(overtimeData, null, 2)}</code></pre>
+  </details>
+</details>
+<style>
+  .study-reproduction { font-size: .9375rem; }
+  .study-reproduction pre { white-space: pre; overflow: auto; max-height: 28rem; font-size: .8125rem; line-height: 1.65; padding: 1rem; background: var(--color-bg-secondary, var(--color-bg)); border: 1px solid var(--color-border); }
+  .study-reproduction p code { overflow-wrap: anywhere; }
+</style>

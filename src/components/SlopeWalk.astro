@@ -1,0 +1,42 @@
+<figure class="experiment slope-walk" data-slope-walk>
+  <figcaption>Can the slope tell you where to go?</figcaption>
+  <p class="experiment-hint">Start inside the tent, then take uphill steps. Reset outside and try the same rule.</p>
+  <svg viewBox="0 0 560 230" role="img" aria-labelledby="slope-title">
+    <title id="slope-title">A tent-shaped score, with a starting point at d = 0.15 and score 0.4.</title>
+    <path d="M50 180 H510 M280 35 V185" stroke="var(--color-border)" fill="none"/>
+    <path d="M50 180 H222.5 L280 40 L337.5 180 H510" stroke="var(--color-link)" stroke-width="3" fill="none"/>
+    <circle data-point cx="314.5" cy="124" r="6" fill="var(--plot-secondary)"/>
+    <text x="50" y="209" text-anchor="middle">−1</text><text x="280" y="209" text-anchor="middle">0</text><text x="510" y="209" text-anchor="middle">1</text>
+    <text x="290" y="40">score = 1</text><text x="400" y="169">score = 0</text>
+  </svg>
+  <p>Horizontal axis: shared error d. Vertical height: score max(0, 1 − 4|d|).</p>
+  <div class="controls"><button type="button" data-start="0.15" disabled>Start inside</button><button type="button" data-start="0.6" disabled>Start outside</button><button type="button" data-step disabled>Take an uphill step</button></div>
+  <p data-result aria-live="polite" class="experiment-result">d = 0.15 · score = 0.40. The slope points left, toward the peak.</p>
+  <noscript><p>Inside, successive steps move 0.15 → 0.11 → 0.07 → 0.03 → 0. Outside at 0.60, the slope is zero and every step leaves the point at 0.60.</p></noscript>
+  <p class="experiment-note">Simplified comparator with four shared errors, not the full network or text-input space. Each step uses learning rate 0.01 × slope, capped at the known peak to avoid overshooting. At the peak we stop; at the tent’s corners the derivative is undefined. No automatic motion.</p>
+</figure>
+<script>
+  import {slopeScore,slopeStep} from '../lib/lock-walkthrough.mjs';
+  document.querySelectorAll<HTMLElement>('[data-slope-walk]').forEach(figure=>{
+    let d=.15;
+    figure.querySelectorAll<HTMLButtonElement>('button').forEach(button=>button.disabled=false);
+    function update() {
+      const score=slopeScore(d);
+      const description=d===0?'At the peak: stop.':Math.abs(d)>=.25?'Flat ground: the slope is zero, so this rule cannot move. The peak still exists.':`The slope points ${d>0?'left':'right'}, toward the peak.`;
+      const text=`d = ${d.toFixed(2)} · score = ${score.toFixed(2)}. ${description}`;
+      figure.querySelector('[data-result]')!.textContent=text;
+      figure.querySelector('svg title')!.textContent=text;
+      const point=figure.querySelector('[data-point]')!;
+      point.setAttribute('cx',String(280+230*d));point.setAttribute('cy',String(180-140*score));
+    }
+    figure.querySelectorAll<HTMLButtonElement>('[data-start]').forEach(button=>button.addEventListener('click',()=>{d=Number(button.dataset.start);update();}));
+    figure.querySelector('[data-step]')!.addEventListener('click',()=>{d=slopeStep(d);update();});
+  });
+</script>
+<style>
+  .controls { display:flex; flex-wrap:wrap; gap:.5rem; }
+  button { font:inherit; padding:.65rem; min-height:44px; color:var(--color-text); background:var(--color-bg); border:1px solid var(--color-border); border-radius:4px; cursor:pointer; }
+  button:focus-visible { outline:2px solid var(--color-link); outline-offset:3px; }
+  [data-point] { transition:cx 180ms ease-out,cy 180ms ease-out; }
+  @media(prefers-reduced-motion:reduce) { [data-point] { transition:none; } }
+</style>

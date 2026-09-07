@@ -1,0 +1,147 @@
+---
+title: "Research Notes: Neural ODEs and Inertial Drift"
+date: 2026-09-06
+description: "How a tiny sensor bias becomes a large position error, and where learning can help a physical model."
+tags: ["scientific-machine-learning", "research", "navigation"]
+draft: true
+order: 5
+---
+
+import Explorable from '../../components/Explorable.astro';
+
+Imagine trying to keep track of your position with your eyes closed. You know where you started. You can feel acceleration and turns. Each moment, you update your estimate of how fast you are moving and where that motion has taken you.
+
+An inertial navigation system does a much more precise version of this. Accelerometers and gyroscopes measure motion, and a physical model integrates those measurements into velocity, orientation, and position.
+
+The trouble is that small errors don't stay small. A sensor that is only slightly biased can persuade the system that a stationary object is moving, and the imaginary motion keeps accumulating.
+
+My MIT thesis studied ways to reduce that drift using scientific machine learning. Before getting to the learned part, it helps to see why integration makes this such an unforgiving problem.
+
+## Integrate once, then again
+
+Start with one-dimensional motion. Let $x(t)$ be position, $v(t)$ velocity, and $a(t)$ acceleration. Their relationships are
+
+$$
+\frac{dx}{dt}=v(t),\qquad \frac{dv}{dt}=a(t).
+$$
+
+The notation $dx/dt$ means the rate at which position changes. A velocity of two meters per second means position changes by about two meters over the next second, if that velocity remains constant.
+
+Now suppose the acceleration reading has a constant bias $b$:
+
+$$
+a_{\mathrm{measured}}(t)=a_{\mathrm{true}}(t)+b.
+$$
+
+Assume position and velocity are correct at time zero. Integrating the bias once gives velocity error $bt$. Integrating again gives position error
+
+$$
+e_x(t)=\int_0^t b\tau\,d\tau=\frac12bt^2.
+$$
+
+The square of time is the problem. With a bias of only $0.01\,\mathrm{m/s^2}$, the error after ten seconds is half a meter. After sixty seconds it is eighteen meters. Waiting six times as long produces thirty-six times the position error.
+
+This simplified calculation ignores rotation, gravity compensation, and changing biases. It is useful because we can isolate one mechanism and know exactly what the curve should do.
+
+<Explorable kind="drift" />
+
+Try removing 80% of the bias. After a minute, eighteen meters becomes 3.6 meters. Remove all of it and the error vanishes in this toy world. Remove 120% and the estimated trajectory drifts in the opposite direction.
+
+That last case is worth noticing. A correction can be confidently wrong. A learned model needs to estimate the error well; producing a larger correction isn't automatically an improvement.
+
+## Three dimensions make the problem harder
+
+A real inertial measurement unit has accelerometers and gyroscopes along three axes. Gyroscopes measure angular velocity, helping track orientation. Accelerometers measure specific force in the sensor's own frame, rather than directly handing us acceleration in a fixed world frame.
+
+The navigation calculation therefore has to account for orientation and gravity. A small error in orientation can cause part of gravity to be treated as motion. That feeds another error into the integration.
+
+For intuition, a small angular error $\theta$ in radians can leak a component roughly $g\theta$ into an acceleration estimate. One degree is about 0.0175 radians; multiplying by $g\approx9.81\,\mathrm{m/s^2}$ gives roughly $0.17\,\mathrm{m/s^2}$. This is an order-of-magnitude example, not a complete navigation error model.
+
+So the state we estimate has several coupled pieces: position, velocity, orientation, and often sensor biases. An error in one can disturb another.
+
+## A differential equation is a rule for the next small step
+
+Bundle the state into a vector $z(t)$ and the sensor inputs into $u(t)$. A dynamics model can be written
+
+$$
+\frac{dz}{dt}=f_{\mathrm{physics}}(z(t),u(t),t).
+$$
+
+The function on the right tells us how the current state changes. An ordinary differential equation, or ODE, specifies that rule. A numerical solver follows the rule through time.
+
+The simplest approximation is an Euler step:
+
+$$
+z_{k+1}\approx z_k+\Delta t\,f_{\mathrm{physics}}(z_k,u_k,t_k).
+$$
+
+Read this as “next state equals current state plus a small change.” Better solvers estimate the change more carefully, but the basic job is the same.
+
+A neural ODE uses a neural network to parameterize a rate of change. One useful hybrid form is
+
+$$
+\frac{dz}{dt}=f_{\mathrm{physics}}(z,u,t)+g_{\theta}(z,u,t),
+$$
+
+where $g_{\theta}$ is a learned correction with parameters $\theta$. The physical model supplies structure; the network represents a part we hope to learn from data. Solving the equation turns these local changes into a trajectory.
+
+That equation is a conceptual bridge to the [neural ODE framework](https://arxiv.org/abs/1806.07366). It should not be read as the exact architecture of every scientific-ML system, including the one described in my thesis.
+
+## What the thesis actually did
+
+The thesis documents a sensor-correction pipeline integrated with navigation and filtering. It used Julia and the High-Performance Inertial Navigation Development Repository to generate simulated trajectories and corrupted inertial measurements. The simulation gives both the noisy readings and a reference trajectory for evaluating error.
+
+Separate neural models handle accelerometer and gyroscope corrections. Chapter 5 describes preprocessing, networks with tanh activations, postprocessing, and Jacobian calculations used in integration with an extended Kalman filter. The architecture also uses batch filtering.
+
+Here, tanh is a smooth, bounded nonlinear function inside the network. A Jacobian records how small changes in the network's inputs change its outputs; that local sensitivity helps a filter propagate uncertainty. Batch filtering works with groups of measurements together, allowing the procedure to use relationships across time.
+
+One way to understand the role of those models is
+
+$$
+u_{\mathrm{corrected}}=u_{\mathrm{measured}}-\widehat b_{\theta},
+\qquad
+\frac{dz}{dt}=f_{\mathrm{physics}}(z,u_{\mathrm{corrected}},t).
+$$
+
+This is a simplified explanatory sketch: estimate a correction, apply it to the measurement, and propagate the physical state. It preserves the relationship between sensing and dynamics without pretending to reproduce every component of the implementation. [Thesis, Chapter 5](/files/MIT-McManus-Thesis.pdf#page=53).
+
+An extended Kalman filter, or EKF, keeps track of an estimated state and its uncertainty. It propagates both through a local approximation to nonlinear dynamics and incorporates available measurements to update them. Learned sensor corrections can work with that machinery. Learning a bias model and estimating the evolving state are related tasks, but they aren't identical.
+
+## The reported result
+
+Chapter 6 describes a simulated figure-eight trajectory and compares a baseline with the SciML system. Table 6.1 reports 3D RMSE values of 516.55 and 191.21 respectively, corresponding to roughly a 63% reduction.
+
+The chart below uses the baseline as 100%. This makes the relative comparison explicit without adding units that the table itself does not print for those entries.
+
+<Explorable kind="thesis" />
+
+For position estimates $\widehat x_i$ and reference positions $x_i$ at $N$ evaluation times, three-dimensional root mean squared error has the form
+
+$$
+\operatorname{RMSE}=\sqrt{\frac1N\sum_{i=1}^N\lVert\widehat x_i-x_i\rVert_2^2}.
+$$
+
+The norm measures the distance between estimated and reference position. Squaring makes large misses matter strongly; averaging summarizes the trajectory; the final square root restores the original units.
+
+A reduction in RMSE is a statement about this aggregate error measure. It doesn't imply that every point on the trajectory improved by 63%. It also doesn't establish how the method would perform on a new sensor, a longer mission, or a different motion pattern. The bars summarize the reported simulation comparison; the earlier drift curves are analytic teaching examples.
+
+## The hard question is what transfers
+
+Simulation is useful because it gives us controlled errors and known ground truth. It is also a place where a model can learn regularities that fail elsewhere.
+
+If training and evaluation windows come from nearby portions of the same trajectory, a good score can overstate performance on genuinely new motion. A useful evaluation would separate trajectories and sensor-error settings, then test new combinations of motion, bias, and noise. Longer rollouts matter because a small local error can accumulate.
+
+There is a more fundamental limit too: the sensors may not contain enough information to distinguish all possible motions and biases. A learned model brings assumptions from its training distribution. It doesn't create an independent position measurement merely by being a neural network.
+
+That makes the scientific part of scientific machine learning important. We need to know which structure comes from physics, which regularities come from data, and which changes in conditions invalidate them.
+
+<details>
+<summary>Quick check: does halving the bias halve the error, or quarter it?</summary>
+
+In the constant-bias model, error is $bt^2/2$. Halving $b$ halves the error at a fixed time. Halving the elapsed time quarters it. They affect different factors in the same equation.
+
+</details>
+
+## Sources and scope
+
+The implementation description and numerical comparison come from [my thesis](/files/MIT-McManus-Thesis.pdf), especially Chapters 4–6 and Table 6.1 on page 70. The general continuous-time neural-network idea is explained in [Chen et al., “Neural Ordinary Differential Equations”](https://arxiv.org/abs/1806.07366). The one-dimensional bias curves and correction percentages are derived examples created for this article, not reproductions of measured trajectories.

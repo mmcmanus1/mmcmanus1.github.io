@@ -1,0 +1,133 @@
+---
+title: "When Is a Probability a Price?"
+date: 2026-09-06
+description: "Why a 60-cent contract suggests 60%, and which assumptions are hiding in that sentence."
+tags: ["prediction-markets", "probability"]
+draft: true
+order: 4
+---
+
+import Explorable from '../../components/Explorable.astro';
+
+A contract pays one dollar if an event happens and nothing otherwise. It trades at 60 cents. Does that mean the event has a 60% chance?
+
+There is a good reason for that interpretation. There are also several ways it can be incomplete. The easiest way to see both is to construct the relationship from the payoff, then change one assumption at a time.
+
+For the examples here, imagine an unambiguous question with two outcomes, reliable settlement, and a known payment date. The numbers are invented to explain the mechanics.
+
+## Start with a ticket
+
+Let $Y$ be one if the event happens and zero otherwise. The contract's dollar payoff is $Y$. If you believe the event has probability $p$, the expected payoff is
+
+$$
+\mathbb{E}[Y]=p\cdot1+(1-p)\cdot0=p.
+$$
+
+At a purchase price $c$, expected profit is $p-c$ if payment is immediate and there are no fees. An expected-profit maximizer is indifferent at $c=p$.
+
+For a 60% belief and a 60-cent price, the calculation is
+
+$$
+0.6(1-0.6)+0.4(0-0.6)=0.
+$$
+
+You win 40 cents when yes happens and lose 60 cents when it doesn't. At those odds, the expected gains and losses balance.
+
+Notice what we established: under the assumptions, **your belief determines your break-even price**. We haven't yet proved that an observed market price reveals everyone's belief, or that it is a simple average of them.
+
+## Waiting changes the calculation
+
+Suppose the contract pays in $T$ years and the continuously compounded annual interest rate is $r$. A dollar at that future date has present value $e^{-rT}$ under deterministic discounting.
+
+An idealized risk-neutral value is then
+
+$$
+c=p e^{-rT}.
+$$
+
+“Risk-neutral” here means evaluating uncertain payoffs through their discounted expectation. It is an assumption about the valuation, not a claim about how every trader actually behaves.
+
+<Explorable kind="price" />
+
+At $p=0.6$, $r=0.05$, and $T=1$, the value is about 57.1 cents. A 60% belief can therefore correspond to a price below 60 cents even before spreads or fees enter.
+
+Set the wait or the rate to zero and the diagonal returns. That is the special case behind the quick “cents equal percent” reading.
+
+Actual venue mechanics may treat collateral, interest, and settlement differently. The example isolates the cost of waiting; it doesn't describe any particular exchange's current rules.
+
+## Which price did you see?
+
+A market can show a last traded price, a bid, an ask, and a midpoint. Those are different objects.
+
+Suppose the best bid is 58 cents and the best ask is 62 cents. The midpoint is 60 cents, but a buyer who wants to trade immediately typically faces the ask, subject to available quantity. A stale last trade at 60 cents is also different from a current offer to sell at that price.
+
+If your belief is 61% and we return to immediate, costless settlement, the contract has positive expected profit at a price of 60 cents and negative expected profit at 62 cents:
+
+$$
+0.61-0.60=0.01,\qquad 0.61-0.62=-0.01.
+$$
+
+One percentage point of apparent disagreement can disappear when translated into an executable trade.
+
+If a hypothetical fixed fee $f$ is paid upfront on purchase, the immediate-settlement calculation becomes $p-c-f$. Fees contingent on profit or outcome require a different payoff calculation. The safe habit is to write the actual cash flows before reducing them to a probability threshold.
+
+## A dollar can matter more in one outcome
+
+Imagine a ticket that pays during a bad week, when your other income also falls. You might value that payoff partly because it arrives when you need it most. Someone else might already have too much exposure to that outcome and want to sell.
+
+Economics packages this effect into a **stochastic discount factor** $m$: a weight that can differ across outcomes. In a pricing model using such a factor,
+
+$$
+c=\mathbb{E}[mY].
+$$
+
+The factor translates a payoff in each future state into its value today. Splitting the expectation gives
+
+$$
+c=\mathbb{E}[m]p+\operatorname{Cov}(m,Y).
+$$
+
+The first term resembles our discounted probability. The second reflects whether the contract pays in states where payoffs receive more or less weight.
+
+Here is a numerical example. Suppose yes and no each have physical probability one-half, and the pricing weights are 1.2 in the yes state and 0.8 in the no state. The average weight is one, so the risk-free discount factor in this example is one. Yet
+
+$$
+c=0.5\cdot1.2\cdot1+0.5\cdot0.8\cdot0=0.6.
+$$
+
+The price is 60 cents while the physical event probability is 50%. The extra value comes from state weighting.
+
+If we normalize these weights, we can define a **pricing probability**:
+
+$$
+q=\frac{\mathbb{E}[mY]}{\mathbb{E}[m]},\qquad c=Dq,\quad D=\mathbb{E}[m].
+$$
+
+This $q$ is often called a risk-neutral probability. It is a probability under the pricing weights; it need not equal the ordinary frequency probability $p$. The name doesn't mean that uncertainty disappeared.
+
+## People don't get one vote each
+
+Even putting state-dependent value aside, a price forms through orders, capital, constraints, and willingness to take the other side. Someone with a strong belief but little capacity to trade may have less influence than someone with a weaker belief and much more capacity.
+
+This is why “the market thinks 60%” is useful shorthand but a poor literal description of the mechanism. A price summarizes an interaction. Its relationship to beliefs depends on that interaction.
+
+The research literature studies conditions under which prediction-market prices approximate average beliefs. [Wolfers and Zitzewitz, “Interpreting Prediction Market Prices as Probabilities”](https://www.nber.org/papers/w12200) is a direct treatment of that question. The issue is what assumptions make the interpretation work, not whether prices contain useful information at all.
+
+## And what exactly pays out?
+
+A forecast concerns an event. A contract concerns a settlement rule. Those can sound similar while differing in details: which source counts, what deadline applies, whether a revision matters, or what happens if the event becomes impossible to resolve.
+
+If the payoff is not simply one dollar for yes and zero for no, our first equation must change. A refund or a third settlement outcome introduces additional cash flows. A good estimate for an informal question can still be a poor estimate for the contract actually traded.
+
+<details>
+<summary>Quick check: a 60-cent price pays in one year at a 5% rate. What probability does the simple risk-neutral model imply?</summary>
+
+Solve $c=pe^{-rT}$ for $p$: $p=ce^{rT}=0.6e^{0.05}\approx0.631$. About 63.1%, assuming reliable binary settlement, the stated discounting, and no risk adjustment or trading costs. This is the inverse calculation for that model, not a universal way to decode a quote.
+
+</details>
+
+The cents-to-percent shortcut is a useful first approximation when settlement is clean, payment is near, and the relevant frictions and risk adjustments are small. The moment we need more precision, we can return to the thing we actually own: a payoff, at a time, in particular states of the world.
+
+## Further reading
+
+The expected-payoff and discounting examples are derived above. For a formal treatment of belief aggregation, see [Wolfers and Zitzewitz (2006)](https://www.nber.org/papers/w12200). For the pricing-kernel formulation, see John Cochrane's [Asset Pricing materials](https://www.johnhcochrane.com/asset-pricing). These examples concern general models and invented contracts; they contain no current positions or proprietary strategy details.

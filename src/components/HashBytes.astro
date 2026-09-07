@@ -1,0 +1,49 @@
+---
+import {createHash} from 'node:crypto';
+const phrases=['cat','cats','cut','cat '];
+const samples=phrases.map(phrase=>({phrase,bytes:createHash('md5').update(phrase,'ascii').digest('hex').match(/../g)!}));
+const baseline=samples[0];
+const selected=samples[1];
+const changed=selected.bytes.filter((byte,i)=>byte!==baseline.bytes[i]).length;
+---
+<figure class="experiment hash-bytes" data-hash-bytes data-samples={JSON.stringify(samples)}>
+  <figcaption>One small text edit. Which bytes stay put?</figcaption>
+  <p class="experiment-hint">Choose a variation of “cat.” Does changing one character change only one part of the digest?</p>
+  <label for="hash-phrase">Compare “cat” with</label>
+  <select id="hash-phrase" data-phrase disabled>
+    {samples.map((sample,i)=><option value={i} selected={i===1}>{JSON.stringify(sample.phrase)}{i===3?' (trailing space)':''}</option>)}
+  </select>
+  <p class="byte-heading">MD5 of “cat”</p>
+  <div class="digest-row" aria-label={`MD5 of cat: ${baseline.bytes.join('')}`}>{baseline.bytes.map(byte=><code>{byte}</code>)}</div>
+  <p class="byte-heading" data-heading>MD5 of “cats”</p>
+  <div class="digest-row" data-digest aria-label={`MD5 of cats: ${selected.bytes.join('')}`}>{selected.bytes.map((byte,i)=><code data-changed={byte!==baseline.bytes[i]}>{byte}</code>)}</div>
+  <p data-comparison class="experiment-result" aria-live="polite">{changed} of 16 bytes changed. Dashed boxes differ; solid boxes match.</p>
+  <noscript><p>This shows the “cat” versus “cats” comparison. Enable JavaScript to select another phrase.</p></noscript>
+  <p class="experiment-note">Real MD5 digests calculated with Node’s standard library, not outputs from the puzzle network. A few examples illustrate the effect; they do not prove a statistical property of the hash.</p>
+</figure>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-hash-bytes]').forEach(figure=>{
+    const samples=JSON.parse(figure.dataset.samples!) as {phrase:string;bytes:string[]}[];
+    const select=figure.querySelector<HTMLSelectElement>('[data-phrase]')!;
+    select.disabled=false;
+    select.addEventListener('change',()=>{
+      const sample=samples[Number(select.value)];
+      const digest=figure.querySelector<HTMLElement>('[data-digest]')!;
+      digest.querySelectorAll<HTMLElement>('code').forEach((cell,i)=>{
+        cell.textContent=sample.bytes[i];cell.dataset.changed=String(sample.bytes[i]!==samples[0].bytes[i]);
+      });
+      figure.querySelector('[data-heading]')!.textContent=`MD5 of ${JSON.stringify(sample.phrase)}`;
+      digest.setAttribute('aria-label',`MD5 of ${JSON.stringify(sample.phrase)}: ${sample.bytes.join('')}`);
+      const changed=sample.bytes.filter((byte,i)=>byte!==samples[0].bytes[i]).length;
+      figure.querySelector('[data-comparison]')!.textContent=`${changed} of 16 bytes changed. ${changed===0?'The same input gives exactly the same digest.':'A nearby phrase need not produce a nearby digest.'} Dashed boxes differ; solid boxes match.`;
+    });
+  });
+</script>
+<style>
+  .digest-row { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:.4rem; }
+  .digest-row code { text-align:center; font-size:1rem; padding:.5rem .1rem; border:1px solid var(--color-border); border-radius:3px; background:transparent; }
+  .digest-row [data-changed="true"] { border-style:dashed; border-color:var(--plot-secondary); color:var(--plot-secondary); }
+  .hash-bytes .byte-heading { margin:1rem 0 .5rem; font-size:.875rem; }
+  select:focus-visible { outline:2px solid var(--color-link); outline-offset:3px; }
+  @media(max-width:480px) { .digest-row { grid-template-columns:repeat(4,minmax(0,1fr)); } }
+</style>

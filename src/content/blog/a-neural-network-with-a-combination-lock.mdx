@@ -1,0 +1,278 @@
+---
+title: "A Neural Network with a Combination Lock"
+date: 2026-09-06
+description: "Inside Jane Street’s tensor puzzle—and why being almost right gets you nowhere."
+tags: ["puzzles", "neural-networks", "reverse-engineering"]
+draft: true
+---
+
+import Explorable from '../../components/Explorable.astro';
+import ByteLock from '../../components/ByteLock.astro';
+import HashBytes from '../../components/HashBytes.astro';
+import LockWalkthrough from '../../components/LockWalkthrough.astro';
+import SlopeWalk from '../../components/SlopeWalk.astro';
+
+You type a phrase into a neural network. It returns zero. You try another phrase. Zero again.
+
+You have all the weights. Every layer is available to inspect. Surely that should make finding a successful input easier?
+
+The interesting part of [Jane Street’s tensor puzzle](https://blog.janestreet.com/can-you-reverse-engineer-our-neural-network/) is the gap between those two things: having a complete description of a computation, and knowing how to make it do what you want. The network was constructed by hand, rather than trained to understand the phrase. We're going to take apart its final test first, then work out what feeds into it.
+
+This is an explanation of a published solution, not a claim that I solved the original challenge independently. The small circuits below are reconstructed and checked separately; I have not run the original model end to end. The mechanism is spoiled below, but the winning phrase stays behind a reveal.
+
+## Start with the lock, not the key
+
+Before naming thousands of moving parts, I'd look at what makes the machine's green light turn on. The last layers compare sixteen computed values with sixteen fixed targets.
+
+For this puzzle, think of a **layer** as a row of little calculators. Each calculator takes numbers from the previous row, multiplies them by fixed numbers called **weights**, adds an offset called a **bias**, and passes the result onward. Many of these calculators also do one very simple thing: replace a negative answer with zero.
+
+A ReLU takes a number and discards its negative part:
+
+$$
+R(x)=\max(0,x).
+$$
+
+For example, $R(-3)=0$, $R(0)=0$, and $R(2)=2$. Its graph is flat to the left of zero and a rising ramp to the right. Nothing about that looks like a test for equality.
+
+Let's build one. Call the difference between the computed value and its target $d$. A target of 42 and a computed value of 43 give $d=1$. We want a little peak at zero, with a flat floor on either side.
+
+Start a ramp at $-1$. When you reach zero, subtract a ramp that's twice as steep: the line folds downward. When you reach one, add another ramp to stop the descent. Try those three moves below before reading the finished formula.
+
+<Explorable kind="relu-build" />
+
+Now the notation is just a compact record of what you built:
+
+$$
+E(d)=R(d-1)-2R(d)+R(d+1).
+$$
+
+Here $d=v-t$, where $v$ is the computed value and $t$ is the target. The order of the three terms doesn't change their sum.
+
+At zero, the three ramps contribute $0-0+1=1$. At one, they contribute $0-2+2=0$. Farther to the right, their slopes cancel. Far enough to the left, none has switched on.
+
+The result is a little tent:
+
+$$
+E(d)=\max(0,1-|d|).
+$$
+
+On the real line, this gives partial credit for being nearby. Move the probe to $d=0.25$ at step 3: the score is $0.75$.
+
+But the values being compared are **bytes**. A bit is a zero or a one; a byte is a group of eight bits, representing an integer from 0 through 255. For example, the byte `00101010` represents $32+8+2=42$. We aren't comparing arbitrary fractions here.
+
+There is no integer strictly between zero and one. Move the probe through the integers $-2,-1,0,1,2$: only zero sits on the peak. On that grid, the tent becomes an exact equality test:
+
+$$
+E(v-t)=
+\begin{cases}
+1,&v=t,\\
+0,&v\ne t.
+\end{cases}
+$$
+
+That's the first useful change of perspective. A neuron needn't represent a fuzzy concept. A few neurons can implement an ordinary program instruction.
+
+<details>
+<summary>Why those particular coefficients?</summary>
+
+Look at the slope as you move from left to right. At $d=-1$, the $R(d+1)$ term starts climbing: slope $+1$. At $d=0$, the $-2R(d)$ term switches on: total slope $-1$. At $d=1$, the $R(d-1)$ term joins: total slope zero. Three changes of slope make the tent. The coefficients are a recipe for its corners.
+
+</details>
+
+## Sixteen tumblers, one green light
+
+We can now check one byte. What should happen when fifteen of the sixteen bytes match? Make a prediction, then try changing individual matches.
+
+<ByteLock />
+
+The distinction is between **averaging** sixteen checks and **requiring** all sixteen. An average would award partial credit. This circuit doesn't.
+
+Let $v_i$ and $t_i$ be byte number $i$ of the computed result and the target. Sum the sixteen equality scores, subtract fifteen, and apply another ReLU. The large $\sum$ symbol below just means “add this score for each of the sixteen positions”:
+
+$$
+F(v)=R\!\left(\sum_{i=1}^{16}E(v_i-t_i)-15\right).
+$$
+
+Sixteen matches give $R(1)=1$. Fifteen matches give $R(0)=0$. Fewer matches also give zero. This is an AND gate: every tumbler must line up.
+
+The final linear layer's repeated $1,-2,1$ groups and bias $-15$ are the fingerprints of that construction. [Thomas Brownback’s independent write-up](https://thomasbrownback.com/20260711.html) documents those weights and the target digest he recovered.
+
+We've identified the lock. Later, we'll inspect what supplies its sixteen values.
+
+## The shrinking target
+
+Let's briefly leave the actual integer inputs behind. Imagine we could directly adjust the computed bytes by fractional amounts. Could we follow an uphill slope toward a larger output?
+
+That's the intuition behind **gradient ascent**. If moving a knob a little to the right increases the score, move right. If it decreases the score, move left. A derivative measures that local slope; a gradient collects the slopes for many knobs. Backpropagation is a way to calculate them through the layers of a network.
+
+“Local” is the important word. A perfectly flat patch tells you neither which direction the peak lies nor how far away it is. A zero slope isn't evidence that no better point exists.
+
+Keep fifteen comparisons exactly right, and miss the last by $0.1$. The final output is $0.9$. That seems encouraging.
+
+Now miss **all sixteen** by the same $0.1$. Each individual test scores $0.9$. But their sum is only $14.4$, below the final threshold of fifteen. The output is zero.
+
+More generally, if $k$ comparisons share an error $d$ and the others are perfect, then
+
+$$
+F_k(d)=\max(0,1-k|d|).
+$$
+
+<Explorable kind="relu-lock" />
+
+With sixteen imperfect comparisons, a positive output requires $|d|<1/16$. The slope inside that narrow tent is steep. Outside it, the slope is zero. Increasing the steepness hasn't made the useful region easier to find.
+
+Try following the slope on a wider tent, with four shared errors. Start inside, then outside. Does the same rule work in both places?
+
+<SlopeWalk />
+
+These plots live in the space of computed byte values, not text inputs. Editing a phrase doesn't let us move one byte independently. We'll see that second obstacle next.
+
+<details>
+<summary>Optional: unequal errors and the geometry of the target</summary>
+
+We can also drop the assumption that the errors are equal. Substituting the tent formula gives
+
+$$
+F(v)=\max\!\left(0,1-\sum_{i=1}^{16}\min(1,|v_i-t_i|)\right).
+$$
+
+For this to be positive, every error must be smaller than one, and the **sum** of their absolute sizes must be smaller than one. Being close in each coordinate isn't enough; they share a single error budget.
+
+With two errors, the positive region is $|d_1|+|d_2|<1$: a diamond inside the square $[-1,1]^2$. In $n$ dimensions, it occupies a fraction $1/n!$ of the corresponding cube. Each sign choice contributes a simplex of volume $1/n!$, giving total volume $2^n/n!$ versus cube volume $2^n$.
+
+For sixteen dimensions that fraction is about $4.78\times10^{-14}$. This is an exact volume ratio for the thought experiment—not a measured chance of solving the puzzle, and not an assumption that actual network activations are uniformly distributed in that cube.
+
+</details>
+
+## Recognizing the machine behind the lock
+
+The hidden computation is MD5, a **hash function**. It deterministically turns a message into a fixed-size label called a **digest**. The same message gives the same label every time. The label isn't a summary of the message's meaning, and you don't decode it to get the message back.
+
+MD5's label is 128 bits, or sixteen bytes. To print it compactly, we write each byte as two hexadecimal digits. Hexadecimal uses sixteen symbols, `0–9` and `a–f`; for example, decimal 42 becomes `2a`. Those long strings of letters and numbers are simply another way to write the sixteen integers going into our lock. The [MD5 specification](https://www.rfc-editor.org/rfc/rfc1321) describes the computation that produces them.
+
+Before thinking about finding the winning phrase, try a smaller question: if you change just one letter, how much of the label changes?
+
+<HashBytes />
+
+The important separation is now visible. We could toggle one comparison in the lock above without disturbing the others. Editing the text doesn't give us that control: its effects can spread across the digest.
+
+To test that identification, you would use several known strings, extract the candidate digest immediately before the comparison, and check it against an ordinary MD5 implementation. Compare all sixteen bytes, not merely the model's final zero. A zero throws away almost everything you need to identify the computation.
+
+<details>
+<summary>Evidence checkpoint: what would actually convince us?</summary>
+
+**A clue:** sixteen bytes is the right output size for MD5. But plenty of programs produce sixteen bytes. Size alone doesn't identify the algorithm.
+
+**A testable hypothesis:** the values just before the equality circuit are the input's MD5 digest. Predict all sixteen bytes for several chosen inputs, then compare them with extracted activations. Agreement is stronger evidence than matching a shape or a layer count.
+
+**A boundary check:** try inputs of different lengths and check the input encoding. A few successful examples don't prove agreement everywhere. The reported length bug is exactly why that distinction matters.
+
+The examples in this post use ordinary MD5, not extracted network activations. They explain the hypothesis; they do not independently establish that the original model computes it.
+
+</details>
+
+Here is the target documented by the published solvers:
+
+```text
+c7ef65233c40aa32c2b9ace37595fa7c
+```
+
+For relevant short inputs, the recovered description is therefore: compute the phrase's MD5, compare it to this digest, and return one only for a match. Jane Street also reports a length-encoding bug for longer inputs, so this is not a claim that the network implements standard MD5 correctly for every possible message. [Creator’s explanation](https://blog.janestreet.com/can-you-reverse-engineer-our-neural-network/).
+
+Once the algorithm and target are known, evaluating guesses with the huge network is unnecessary. A standard hash implementation answers the relevant question directly.
+
+Here are all the pieces connected. Follow one phrase down through the digest, comparisons, and final gate. The successful phrase is optional: reveal it only when you're ready for the answer.
+
+<LockWalkthrough />
+
+## Why a better score isn't necessarily a better phrase
+
+You might try removing the last ReLU. Then the raw score becomes
+
+$$
+S(s)=\text{number of matching digest bytes}-15.
+$$
+
+This reveals partial matches. But it doesn't explain how to improve them. A phrase matching three bytes isn't necessarily a useful starting point for finding one that matches four.
+
+Here's a useful null model—not an experiment on the original network. Imagine drawing each of sixteen bytes independently from 0 through 255, with every value equally likely. Each has a $1/256$ chance of matching its target. The number of matches $M$ follows a **binomial distribution**: the count of successes in sixteen independent tries, each with the same success probability.
+
+$$
+M\sim\operatorname{Binomial}(16,1/256).
+$$
+
+It's easier to count the opposite of “at least one”: no matches at all. One byte misses with probability $255/256$. All sixteen miss with probability $(255/256)^{16}$. Subtract that from one:
+
+$$
+P(M\ge1)=1-(255/256)^{16}\approx6.07\%.
+$$
+
+So among a million random-looking digests, you'd expect roughly 60,702 to improve on the usual raw score of $-15$. That sounds like thousands of promising leads. Yet the model assigns no special significance to the words in them. Accidental agreement is common enough to look like progress.
+
+Partial matches become useful leads only if they help choose the next phrase. This calculation doesn't give us that link.
+
+## Finding the key
+
+The intended candidate space is much smaller than all possible strings: two lowercase English words separated by a space. Jane Street explains that this restriction was hinted at in the puzzle. With a dictionary of $N$ words, testing every ordered pair takes $N^2$ hashes. [Puzzle and solution discussion](https://blog.janestreet.com/can-you-reverse-engineer-our-neural-network/).
+
+That can still be substantial work. More importantly, a dictionary that omits either word cannot succeed, however fast you search it. The assumptions defining your candidate set matter as much as the search algorithm.
+
+This is a constrained **preimage search**: find a message with a particular hash. It is different from finding any two messages with the same hash, called a collision. Recognizing MD5 doesn't magically supply the missing message; the clue about the message space is what makes enumeration plausible.
+
+<details>
+<summary>Reveal the phrase and a reproducible check</summary>
+
+The published solution gives **bitter lesson**: lowercase, one space, no trailing newline. Credit to [Shreyas Mahimkar’s write-up and linked code](https://medium.com/@shreyasmahimkar/reverse-engineering-a-neural-network-md5-hash-puzzle-848c82ed9285).
+
+This check uses Python's standard library:
+
+```python
+import hashlib
+
+phrase = "bitter lesson"
+target = "c7ef65233c40aa32c2b9ace37595fa7c"
+digest = hashlib.md5(
+    phrase.encode("ascii"), usedforsecurity=False
+).hexdigest()
+
+assert digest == target
+print(digest)
+```
+
+I independently checked this digest equality. That verifies the phrase against the reported target; it is not an end-to-end execution of the original network. Case, spaces, and newlines are bytes too—changing them changes what you hash.
+
+</details>
+
+## What this puzzle does—and doesn't—show
+
+We worked backward from an acceptance condition, recognized a known computation, and used a clue to narrow the search. Understanding the program and finding an input it accepts were different jobs.
+
+This isn't a proof that gradients are useless or that learned networks are impossible to interpret. The obstacles here are specific: an all-or-nothing gate and a hash between our editable phrase and the values we want to change.
+
+My favorite lesson is practical. Before improving the optimizer, check whether you're optimizing a score that knows what progress looks like.
+
+<details>
+<summary>Quick check: is a fifteen-byte match almost a solution?</summary>
+
+It is close in digest coordinates: one comparison is wrong. It need not be close in phrase coordinates: a one-character edit need not preserve those fifteen matches. “Almost” is meaningful only after you say which space you're measuring it in.
+
+</details>
+
+One last thought experiment: **what if the secret were a random 20-character string instead of two English words?** Suppose we kept the same construction but replaced the target digest with that string's hash. Would understanding the network still give us a practical solution?
+
+<details>
+<summary>Think it through, then compare</summary>
+
+The lock would work exactly as before. We could still recognize MD5 and extract the target. What disappears is the useful clue about which inputs to try.
+
+Even restricting the secret to twenty independently chosen, uniformly random lowercase letters gives $26^{20}$ possible strings. A two-word dictionary search no longer covers the intended secret space. Knowing how to check a guess doesn't tell us which guess to make next.
+
+This isn't a proof that every possible attack must enumerate that space. It's the narrower point that our practical dictionary shortcut depended on how the secret was chosen, not just on understanding the network.
+
+Same mechanism. Same explanation. A very different search problem.
+
+</details>
+
+### Attribution and scope
+
+This post explains the original tensor/hash puzzle, not the separate shuffled-layer challenge linked at the end of Jane Street's article. The puzzle and solution mechanism belong to their creators and published solvers. The interactive figures, error-budget derivation, and random-byte calculation here are explanatory reconstructions. They are not recovered model activations or claims of a new cryptographic result. No model pickle was loaded to produce this post; loading an untrusted serialized Python model can execute code.

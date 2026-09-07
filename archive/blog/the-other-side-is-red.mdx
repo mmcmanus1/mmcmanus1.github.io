@@ -1,0 +1,130 @@
+---
+title: "The Other Side Is Red"
+date: 2026-09-06
+description: "Three cards, one red face, and a surprisingly useful question: how did the evidence reach you?"
+tags: ["probability", "puzzles"]
+draft: true
+order: 1
+---
+
+import Explorable from '../../components/Explorable.astro';
+
+There are three cards in a bag. One is red on both sides, one is red on one side and blue on the other, and one is blue on both sides. Call them RR, RB, and BB.
+
+You choose a card uniformly at random, then randomly choose which side to look at. It's red.
+
+What is the probability that the other side is red too?
+
+Give yourself a moment before reading on. One-third, one-half, and two-thirds all have plausible stories behind them. The point of the puzzle is to decide which story matches the experiment.
+
+## Two cards survive. Are they equally likely?
+
+The blue-blue card is out. That leaves RR and RB. If two possibilities remain, it is tempting to give each a probability of one-half.
+
+But imagine we had a hundred red faces printed on one strange many-sided object and only one on another. Seeing a random red face would usually mean we picked the object with a hundred ways to show us red. Merely listing the surviving objects loses that difference.
+
+Our cards have the same issue on a smaller scale. RR has two chances to produce the observation. RB has one.
+
+To make this completely concrete, label both faces of every card, including faces of the same color. There are six equally likely observations:
+
+1. RR, face 1: red, with red behind it.
+2. RR, face 2: red, with red behind it.
+3. RB, red face: red, with blue behind it.
+4. RB, blue face: blue, with red behind it.
+5. BB, face 1: blue, with blue behind it.
+6. BB, face 2: blue, with blue behind it.
+
+Seeing red keeps the first three observations. Two of them have red on the reverse. The answer is $2/3$.
+
+We did not need to change the original experiment or invent new possibilities. We restricted attention to the outcomes consistent with what we saw, then made their probabilities add to one again.
+
+## Bayes' rule is the bookkeeping
+
+Let $R$ mean “the side I see is red.” Before looking, each card has probability $1/3$. That is the **prior**: our belief before this observation.
+
+Next ask how readily each card produces the observation. These are the **likelihoods**:
+
+$$
+P(R\mid RR)=1,\qquad P(R\mid RB)=\frac12,\qquad P(R\mid BB)=0.
+$$
+
+The vertical bar means “given.” For example, the middle expression asks for the probability of seeing red given that we selected RB. It doesn't ask for the probability of RB given that we saw red. Those are different questions.
+
+Multiply each prior by its likelihood:
+
+$$
+RR:\ \frac13\times1=\frac13,\qquad
+RB:\ \frac13\times\frac12=\frac16,\qquad
+BB:\ \frac13\times0=0.
+$$
+
+Those weights add to $1/2$, the overall chance that the experiment shows red. Dividing by that total gives the **posterior**, our belief after looking:
+
+$$
+P(RR\mid R)=\frac{1/3}{1/3+1/6}=\frac23.
+$$
+
+That calculation is Bayes' rule. Its general form is
+
+$$
+P(H\mid E)=\frac{P(E\mid H)P(H)}{P(E)}.
+$$
+
+Here $H$ is a hypothesis and $E$ is evidence. In ordinary language: start with how plausible the hypothesis was, multiply by how well it explains the evidence, and normalize across the possibilities.
+
+The denominator can make the formula look mysterious. It is doing a familiar job: turning relative weights into probabilities that sum to one.
+
+## Let someone choose what you see
+
+Now give the selected card to a helper. They look at both sides and deliberately show you red whenever possible. If the card is BB, they show blue.
+
+You see red. What is the chance the reverse is red now?
+
+RR and RB both guarantee that the helper shows you red. Their likelihoods are equal. Since their priors were equal too, the posterior is split evenly: one-half each.
+
+The color in front of your eyes hasn't changed. The process that selected it has.
+
+The control below blends these two experiments. At 0%, a side is chosen randomly. At 100%, the helper always picks a red side if possible. In between, an independent coin decides which procedure is used; you observe the color but not which procedure was selected.
+
+<Explorable kind="cards" />
+
+Try moving the slider before looking at the equation below. Why should more intervention by the helper make the red observation less convincing evidence for RR?
+
+The helper gives RB more chances to produce red. RR was already certain to do so. As the helper intervenes more often, the observation becomes less useful for distinguishing them.
+
+If the helper intervenes with probability $s$, then
+
+$$
+P(R\mid RB)=s+(1-s)\frac12=\frac{1+s}{2}.
+$$
+
+Therefore
+
+$$
+P(RR\mid R)=\frac{1}{1+(1+s)/2}=\frac{2}{3+s}.
+$$
+
+At $s=0$, we recover $2/3$. At $s=1$, we get $1/2$. The whole curve comes from a change in the likelihood.
+
+## Why this is more than a card trick
+
+Suppose someone shows you a model's best prediction. You can inspect the prediction, but to interpret it you also need to know how it was selected. Was it the only forecast? The best of ten? The best of ten thousand?
+
+A chart can contain entirely correct numbers and still support a misleading conclusion if the selection process is left out. A spectacular result chosen after a large search carries different evidence from a result produced by a procedure fixed in advance.
+
+There is a related issue when someone accepts your offer to trade. You observe a decision made in response to your price. If better-informed people are more likely to accept, the trade itself tells you something. We'll make that precise in the SET article.
+
+For now, the useful habit is simple: describe how an observation could have reached you. Who got to choose? What could they see? What other observations were possible?
+
+## One last variation
+
+Suppose the bag contains **two** RR cards, one RB card, and one BB card. You pick a card and side randomly. After seeing red, what is the chance the reverse is red?
+
+<details>
+<summary>Work it out, then open the answer</summary>
+
+There are five red faces: four on RR cards and one on RB. Four of those five have red behind them, so the answer is $4/5$. Alternatively, use priors $1/2$, $1/4$, and $1/4$ and the same likelihoods as before. The method survives the change in the bag.
+
+</details>
+
+This is the classic double-sided-card puzzle, worked through here by enumerating its sample space. All variants above specify uniform card selection and their side-selection rule. Nothing was estimated from a simulation.

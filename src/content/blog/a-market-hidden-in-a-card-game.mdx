@@ -1,0 +1,211 @@
+---
+title: "The Price of Learning Too Late"
+date: 2026-09-06
+description: "In my SET market, one bot finishes with a better estimate and less profit. Rewinding the round explains why those are different achievements."
+tags: ["experiments", "market-making", "games"]
+draft: true
+order: 3
+---
+
+import Explorable from '../../components/Explorable.astro';
+import SetStudy from '../../components/SetStudy.astro';
+import SetReproduction from '../../components/SetReproduction.astro';
+import LearningTrade from '../../components/LearningTrade.astro';
+import OvertimeStudy from '../../components/OvertimeStudy.astro';
+
+Here is an unpleasant way to learn the right answer.
+
+Something is worth either four or eight, with equal probability. You offer to sell it for six. I know what it is worth, and I buy from you only when it is eight.
+
+The moment I buy, you know the answer too. Your estimate is now perfect.
+
+You have also just lost two.
+
+<LearningTrade />
+
+That is the tension I want to explore in [SET // MARKET](/projects/set-market-maker/), a game I built in which people research a board of cards and trade claims on the answer. Watching other players ought to save you some counting. But *learning from a trade* and *knowing enough to make a good trade* happen on opposite sides of a decision.
+
+So I tested a specific trade-off: **can watching completed trades substitute for doing more private research?**
+
+In the experiment below, it can beat extra research on the final forecasting score. It does not beat it on trading profit. The useful part is seeing exactly where those two rankings come apart.
+
+## A market with an answer you can count
+
+You don't need to know SET to follow the experiment. A board has twelve cards, and some triples form valid sets. That number is the settlement value, $V$. One contract pays $V$ points at the end of the round.
+
+Buy at five when there are seven sets, and you earn two points. Sell at five on that same board, and you lose two. The count stays fixed; only the players' estimates change.
+
+<details>
+<summary>What makes three cards a SET?</summary>
+
+Each card has four attributes: number, shape, color, and shading. Each attribute has three possible values. For a triple to be valid, every attribute must be either all the same or all different across the three cards.
+
+One, two, and three red solid ovals work: number is all different; everything else is the same. Two red cards and a green card fail, regardless of the other attributes.
+
+There are $\binom{12}{3}=220$ candidate triples on a twelve-card board. Finding three valid ones tells you there are at least three. It does not tell you that you've finished counting.
+
+</details>
+
+Each player gets an opening research pass, four opening quote windows, another research pass, then four closing quote windows. Everyone takes one turn making a quote in each stage; the other three players can buy, sell, or pass. The closing order reverses the opening order.
+
+A quote offers two prices: a **bid**, at which its maker buys, and an **ask**, at which its maker sells. The game fixes their distance at two points in the opening stage and one point in the closing stage. Players choose where to put the midpoint. If several players want the same side, one gets the fill at random. This is not a clicking-speed contest.
+
+The computer can count every set for settlement. The trading bots cannot ask it for that answer.
+
+## Two ways to spend your attention
+
+I compared two versions of the same trading bot. Call them **Listener** and **Researcher**.
+
+Listener finds each actual set with probability 50% in its first pass, and updates its estimate when other players complete trades. Researcher finds each set with probability 65%, but ignores those trades. Both get the same second-pass opportunity: a 35% chance of finding each remaining set.
+
+I'll call that first-pass detection rate **opening recall**. It describes the simulator's research model, not a measurement of human search speed. A 65% bot isn't secretly told 65% of the answer. It sees a count of discoveries, knows its detection rate, and forms a probability distribution over the possible total.
+
+Everything else in the two bots is the same: quoting logic, inventory penalties, action thresholds, and trading limits. Only one occupies the test seat at a time. Each plays against two research-informed opponents and one player who uses only the historical distribution of SET counts.
+
+Inventory is the signed number of contracts held: positive means owned, negative means owed. Holding two contracts makes each extra set worth two more points to you. The inventory penalty discourages piling up exposure.
+
+After a small exploratory run, I fixed this comparison and tested it on **12,000 fresh boards**. The two versions face matching boards, maker-seat schedules, and random-number streams. Their trades are allowed to differ—that is part of what changing their information does.
+
+<SetStudy kind="comparison" />
+
+Listener's final squared prediction error was **0.537**, against Researcher's **0.575**: about 6.6% lower. But Listener earned **0.541 points per round**, against **0.710**: about 24% less.
+
+These are not rankings from unrelated tournaments. The paired profit difference was −0.169 points per round, with a 95% Monte Carlo interval of [−0.195, −0.143]. The paired error difference was −0.038 points², with an interval of [−0.052, −0.025]. Both differences persisted beyond the exploratory sample.
+
+Before trying to explain this, it helps to be precise about the forecasting score:
+
+$$
+\operatorname{MSE}_{\mathrm{final}}
+=\frac{1}{N}\sum_{r=1}^{N}
+\left(\widehat V_{r,\mathrm{final}}-V_r\right)^2.
+$$
+
+For each round, take the final estimate, subtract the actual count, square the gap, and average over rounds. Large misses count more than small ones. A score of zero would mean getting every count exactly right.
+
+Crucially, “final” means **after the last trades, but before settlement reveals the answer**. The bot isn't cheating. We are simply grading its knowledge at a moment when it can no longer use it to trade.
+
+## Rewind, instead of adding another decimal place
+
+Here is the same forecasting score throughout the round.
+
+<SetStudy kind="timeline" />
+
+Researcher starts ahead: its error is 0.820, versus Listener's 1.110. That is what the extra private research buys.
+
+Listener learns during trading. Researcher's line stays flat until the second research pass, because this version deliberately ignores trades. Both improve when they get another chance to search the board.
+
+But Listener does not become more accurate, on average, until **seven of the eight quote windows are already over**.
+
+That is a very different picture from the final scoreboard. Listener wins the final test; Researcher knows more for almost the entire period in which decisions are being made.
+
+The trading results have a matching split. Relative to Researcher, Listener earns:
+
+- **0.229 points less during opening trading.**
+- **0.060 points more during closing trading.**
+- **0.169 points less over the whole round.**
+
+Closing trading helps it recover some ground, but not all of it. Even the quote midpoints tell a different story from the final beliefs: Listener's average squared midpoint error is 0.813, versus Researcher's 0.666.
+
+This supports the timing explanation, but it does not isolate timing as the only cause. Different beliefs also change quotes, positions, counterparties, and which later trades happen. The stage split is a decomposition of the result, not a separate experiment in which everything except information arrival time is held fixed.
+
+Still, it tells us where to look. The final estimate was answering a question the trading policy had mostly finished asking.
+
+## What if we leave the market open?
+
+The obvious follow-up is to give Listener a chance to use what it learned. I ran that experiment on another **12,000 fresh boards**, keeping the bots, research quality, and opponent policies unchanged. After the normal eight quote windows, I allowed another four, eight, or sixteen. No one got more private research. Cash, positions, and beliefs carried through; Listener could still learn from new trades.
+
+There is a catch in the rules: each player can take at most four trades per round. A longer clock is less useful if you have already spent your allowance. Making a quote does not spend that allowance, but taking another player's quote does.
+
+So the follow-up has two versions. One preserves the original allowance for the entire extended round. The other restores **every player**, not just Listener, to four available taker fills before each extra block of four quote windows.
+
+<OvertimeStudy />
+
+With the original allowance, Listener's deficit in the mixed roster shrinks from 0.169 points to essentially zero after sixteen extra windows. Its estimated advantage is then +0.006, with a paired 95% interval of [−0.031, +0.044]. **That is not a clear win.**
+
+With refreshed allowances, the same endpoint gives Listener a +0.210-point advantage, with an interval of [+0.149, +0.272]. It is already ahead at eight extra windows in this sample. The improvement in its relative profit from the original endpoint to sixteen extra windows is 0.379 points—not just a consequence of comparing two unrelated averages.
+
+Now switch to three research-informed opponents. Extra time alone does not close the gap: Listener still trails by 0.112 points after sixteen extra windows. With refreshed allowances, it leads by 0.146. The extra opportunities matter in both rosters, but the original rule does not produce the same ending in both.
+
+That makes the conclusion more specific than “wait long enough and the smarter forecast wins.” In these tests, **late information needs opportunities to act on it**. A market can remain open without giving a player much useful freedom to trade.
+
+This is stronger evidence than the original timeline, but it is still a test of a changed market design—not a pure isolation of information timing. Extra trades supply extra evidence, positions can grow, and opponents get more opportunities too. The result shows what happens under these extensions; it does not establish that time or capacity is the only cause.
+
+## Sometimes the lesson comes with an invoice
+
+Return to the four-or-eight example. Perfectly informed buyers make it obvious, but the same issue appears when most buyers know less.
+
+Suppose a fraction $\alpha$ know the value and buy at six only when it is eight. The rest buy with probability one-half, independently of value. Buyer type is also independent of value.
+
+With 50% informed buyers, a purchase is three times as likely in the eight-point world as in the four-point world. Bayes' rule therefore moves the probability of eight from one-half to three-quarters.
+
+Your new expected value is seven. You just sold for six.
+
+<Explorable kind="flow" />
+
+The calculation fits in two lines:
+
+$$
+P(V=8\mid\mathrm{buy})=\frac{1+\alpha}{2},
+\qquad
+\mathbb E[V\mid\mathrm{buy}]=6+2\alpha.
+$$
+
+$$
+\mathbb E[\text{profit}\mid\mathrm{filled\ sale}]
+=6-\mathbb E[V\mid\mathrm{buy}]=-2\alpha.
+$$
+
+The more informative the purchase, the more expensive this particular way of receiving it becomes. The loss here is **per filled sale**, not per quote or per round. Change the offer price and you must also reconsider who will buy; this formula does not describe every possible quote.
+
+Now imagine someone watching from the next chair. They see the same purchase and can make the same update, without taking your short position. The information has the same content, but it arrived with a different balance sheet.
+
+That is why I don't want to call all public information “free.” Some of it is free to the spectator. Some of it is the receipt for the observer's own mistake. Listener in the full game sees both kinds: trades against its quotes and trades between other players.
+
+## Two ways to make the result disappear
+
+The headline would be misleading if it became “ignore the market and do your homework.” The controls say something narrower.
+
+First, give Listener **65% opening recall**, matching Researcher. You can do that in the first figure. With the same research quality, enabling the trade update improves both final accuracy and average profit in the main roster. At that setting, profit rises from 0.710 to 0.818 points per round.
+
+So listening is useful here. It just doesn't fully compensate for cutting the earlier research from 65% to 50%.
+
+Second, replace the opponents with **three prior-only players**. They have no independent board research to reveal. With Listener back at 50%, its final-error advantage disappears: error is 0.798 versus 0.575, and it also earns less. Watching the tape isn't a substitute for other people actually knowing something.
+
+Replacing the original roster with **three researchers** preserves the headline reversal. Listener has lower final error, 0.490 versus 0.575, but lower profit, −0.105 versus +0.074 points per round. It is not just the one weak opponent propping up the comparison.
+
+These are three specific opponent rosters, not a sweep over all possible markets. The interactive controls show all four tested opening-recall levels, including ones where the headline doesn't apply.
+
+## What is the extra research worth?
+
+There is one important bill the simulator does *not* charge: the cost of doing research.
+
+The 0.169-point profit advantage is before that cost. If upgrading the opening research from 50% to 65% costs an extra $c$ points per round, and listening has no additional cost, then for this pair:
+
+$$
+\text{Researcher's net advantage}
+\approx 0.169-c.
+$$
+
+On average profit alone, the estimated break-even cost is about 0.169 settlement points per round. Above that, Listener could be preferable despite its lower gross profit. This is an accounting threshold, not an estimate of how many seconds a person should spend counting.
+
+Nor does average profit settle every preference. Positions differ: Listener's mean peak absolute inventory is 2.012 claims, versus Researcher's 2.265. The bots use the same risk settings, but that does not make their realized risk identical. There is no universal “better bot” hiding inside one column of the results.
+
+## What is new here, and what isn't
+
+Learning from other people's trades is not a new idea. [Glosten and Milgrom's 1985 paper](https://web.stanford.edu/~milgrom/publishedarticles/Bid%20Ask%20and%20Transaction%20Prices.pdf) is a foundational treatment of how informed trading affects a dealer's prices. The tension between paying for research and learning from prices is central to [Grossman and Stiglitz's 1980 paper](https://www.pims.math.ca/files/Grossman_Stiglitz1980.pdf).
+
+This post does not claim to discover those mechanisms. Its contribution is a reproducible, inspectable example in a game with an exact answer: a measured reversal between final forecast quality and trading profit, a timeline showing the late crossover, and controls that expose the result's boundaries.
+
+There is also a modeling limitation worth keeping close to the result. The game's trade update is an approximate rule, not perfect Bayesian inference over all the opponents' possible histories. It weights trades using known bot types, ignores passes, and does not treat the bot's own taker decisions as fresh evidence. Human research is more complicated than independent coin flips for discovering sets, too.
+
+The overtime experiment tests two extensions of this particular market. It does not settle what happens with different inference rules or inventory objectives, or with human players. Those remain open questions.
+
+<SetReproduction />
+
+## The question I would keep
+
+If I were evaluating only the final forecasts, I would choose Listener in the starting comparison. If I were evaluating gross trading profit, I would choose Researcher. Neither answer is a paradox once the clock is back in the picture.
+
+The question worth carrying into another model is not just “How accurate does it get?”
+
+It is: **when does it get accurate, what have you already committed to, and what can you still do with the answer?**

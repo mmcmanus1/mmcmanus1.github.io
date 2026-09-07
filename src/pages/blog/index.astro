@@ -1,10 +1,11 @@
 ---
 import PageLayout from '../../layouts/PageLayout.astro';
 import { getCollection } from 'astro:content';
+import '../../styles/blog.css';
 
-const posts = await getCollection('blog');
+const posts = await getCollection('blog', ({ data }) => !data.unlisted && (import.meta.env.DEV || !data.draft));
 const sortedPosts = posts.sort((a, b) =>
-  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+  (a.data.order ?? 100) - (b.data.order ?? 100) || b.data.date.getTime() - a.data.date.getTime()
 );
 
 function formatDate(date: Date): string {
@@ -18,6 +19,7 @@ function formatDate(date: Date): string {
 
 <PageLayout title="Blog" description="Blog posts by Matt McManus">
   <h2>Blog</h2>
+  <p class="blog-intro">Puzzles, probabilities, and models of the world. Start with a question, work through an example, and see what changes when you turn a knob.</p>
 
   {sortedPosts.length === 0 ? (
     <p>No posts yet. Check back soon!</p>
@@ -25,8 +27,9 @@ function formatDate(date: Date): string {
     <ul class="post-list">
       {sortedPosts.map((post) => (
         <li>
-          <span class="post-date">{formatDate(post.data.date)}</span>
-          <a href={`/blog/${post.slug}/`}>{post.data.title}</a>
+          <span class="post-date">{post.data.draft ? 'Draft' : formatDate(post.data.date)}</span>
+          <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+          {post.data.description && <p>{post.data.description}</p>}
         </li>
       ))}
     </ul>

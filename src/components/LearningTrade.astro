@@ -1,0 +1,94 @@
+---
+const id = 'learning-trade';
+---
+<figure class="experiment learning-trade" data-learning-trade>
+  <figcaption>Try it: name your selling price</figcaption>
+  <p class="experiment-hint">One claim pays either 4 or 8 points, equally likely. Your buyer knows which. They buy exactly when the value is above your ask; at a tie, they pass.</p>
+  <label for={`${id}-ask`}>Your ask: <output data-ask>6.0</output> points
+    <input id={`${id}-ask`} data-ask-control type="range" min="3" max="9" step="0.5" value="6" disabled />
+  </label>
+  <div class="toy-buttons">
+    <button type="button" data-offer disabled>Offer to sell</button>
+    <button type="button" data-reveal hidden>Reveal value</button>
+    <button type="button" data-reset hidden>New round</button>
+  </div>
+  <div class="toy-belief" aria-label="Your probability estimates">
+    <div><span>Value 4</span><div class="toy-track"><div data-low-bar style="width:50%"></div></div><output data-low-prob>50%</output></div>
+    <div><span>Value 8</span><div class="toy-track"><div data-high-bar style="width:50%"></div></div><output data-high-prob>50%</output></div>
+  </div>
+  <dl class="toy-ledger">
+    <div><dt>Your estimate</dt><dd data-estimate>6.00</dd></div>
+    <div><dt>Cash / position</dt><dd data-position>0.00 / 0</dd></div>
+    <div><dt data-profit-label>Expected profit</dt><dd data-profit>0.00</dd></div>
+  </dl>
+  <p class="experiment-result" data-toy-status aria-live="polite">Choose an ask, then let the buyer respond.</p>
+  <p data-toy-explanation class="toy-explanation">The hidden value is sampled fairly when you post your offer. You cannot change your ask after seeing the response.</p>
+  <p class="experiment-note">A one-off teaching game, not the full SET engine. Here a known buyer’s pass is informative too; the simulated Listener below does not use passes. No money or score is saved.</p>
+  <noscript><p>JavaScript is needed to play. At an ask of 6, a purchase reveals value 8 and locks in a loss of 2; a pass reveals value 4 with no trade.</p></noscript>
+</figure>
+<script>
+  import {quoteOutcome, pointString} from '../lib/learning-trade.mjs';
+  document.querySelectorAll<HTMLElement>('[data-learning-trade]').forEach(figure => {
+    const input = figure.querySelector<HTMLInputElement>('[data-ask-control]')!;
+    const offer = figure.querySelector<HTMLButtonElement>('[data-offer]')!;
+    const reveal = figure.querySelector<HTMLButtonElement>('[data-reveal]')!;
+    const reset = figure.querySelector<HTMLButtonElement>('[data-reset]')!;
+    const put = (selector: string, value: string) => { figure.querySelector(selector)!.textContent = value; };
+    let value: number | null = null;
+    input.disabled = false;
+    offer.disabled = false;
+    input.addEventListener('input', () => put('[data-ask]', Number(input.value).toFixed(1)));
+    function render(revealed = false) {
+      const result = quoteOutcome(Number(input.value), value!, revealed);
+      const high = result.pHigh * 100;
+      put('[data-low-prob]', `${100 - high}%`); put('[data-high-prob]', `${high}%`);
+      figure.querySelector<HTMLElement>('[data-low-bar]')!.style.width = `${100 - high}%`;
+      figure.querySelector<HTMLElement>('[data-high-bar]')!.style.width = `${high}%`;
+      put('[data-estimate]', result.mean.toFixed(2));
+      put('[data-position]', `${pointString(result.cash)} / ${result.position === -1 ? '−1' : '0'}`);
+      put('[data-profit-label]', revealed ? 'Settled profit' : 'Expected profit');
+      put('[data-profit]', pointString(revealed ? result.realizedProfit! : result.expectedProfit));
+      put('[data-toy-status]', revealed ? `Value revealed: ${result.revealedValue}. Your settled profit is ${pointString(result.realizedProfit!)} points.` : result.buys ? `They buy at ${Number(input.value).toFixed(1)}. Your offer is now a completed trade.` : 'They pass. No contract changes hands.');
+      put('[data-toy-explanation]', result.explanation);
+    }
+    offer.addEventListener('click', () => {
+      if (value !== null) return;
+      value = crypto.getRandomValues(new Uint32Array(1))[0] < 2 ** 31 ? 4 : 8;
+      input.disabled = true; offer.disabled = true;
+      reveal.hidden = false; reset.hidden = false;
+      render(); reveal.focus();
+    });
+    reveal.addEventListener('click', () => {
+      if (value === null) return;
+      render(true); reveal.disabled = true; reset.focus();
+    });
+    reset.addEventListener('click', () => {
+      value = null; input.disabled = false; offer.disabled = false;
+      reveal.hidden = true; reveal.disabled = false; reset.hidden = true;
+      put('[data-low-prob]', '50%'); put('[data-high-prob]', '50%');
+      figure.querySelector<HTMLElement>('[data-low-bar]')!.style.width = '50%';
+      figure.querySelector<HTMLElement>('[data-high-bar]')!.style.width = '50%';
+      put('[data-estimate]', '6.00'); put('[data-position]', '0.00 / 0');
+      put('[data-profit-label]', 'Expected profit'); put('[data-profit]', '0.00');
+      put('[data-toy-status]', 'Fresh round. Choose an ask, then let the buyer respond.');
+      put('[data-toy-explanation]', 'Try an ask below four or at least eight. Does the same response still reveal the value?');
+      input.focus();
+    });
+  });
+</script>
+<style>
+  .toy-buttons { display: flex; gap: .6rem; flex-wrap: wrap; margin: 1rem 0 1.5rem; }
+  .toy-buttons button { font: inherit; padding: .5rem .8rem; border: 1px solid var(--color-border); color: var(--color-text); background: var(--color-bg); border-radius: 4px; cursor: pointer; }
+  .toy-buttons button:disabled { opacity: .5; cursor: default; }
+  .toy-buttons button:focus-visible { outline: 2px solid var(--color-link); outline-offset: 3px; }
+  .toy-belief > div { display: grid; grid-template-columns: 4rem 1fr 3rem; align-items: center; gap: .65rem; margin: .65rem 0; font-size: .9375rem; }
+  .toy-track { height: 1rem; background: var(--color-border); border-radius: 2px; overflow: hidden; }
+  .toy-track > div { background: var(--color-link); height: 100%; transition: width 180ms ease-out; }
+  .toy-belief > div:last-child .toy-track > div { background: var(--plot-secondary); }
+  .toy-ledger { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.5rem 0; }
+  .toy-ledger dt { font-size: .875rem; color: var(--color-text-muted); }
+  .toy-ledger dd { margin: .25rem 0 0; font-size: 1.125rem; font-variant-numeric: tabular-nums; }
+  .learning-trade .toy-explanation { font-size: .9375rem; margin-block: .75rem; }
+  @media (max-width: 400px) { .toy-ledger { grid-template-columns: 1fr; gap: .65rem; } .toy-ledger > div { display: flex; justify-content: space-between; align-items: baseline; } }
+  @media (prefers-reduced-motion: reduce) { .toy-track > div { transition: none; } }
+</style>
