@@ -18,6 +18,15 @@
     report('Do Not Track: ' + (navigator.doNotTrack || 'not enabled'));
     try { report('Umami opt-out: ' + Boolean(localStorage.getItem('umami.disabled'))); }
     catch { report('Browser storage unavailable'); }
+    window.addEventListener('error', (event) => report('Script error: ' + event.message));
+    fetch('https://cloud.umami.is/script.js', {cache: 'reload'})
+      .then(response => response.text())
+      .then(source => {
+        report('Tracker source length: ' + source.length);
+        report('Contains Umami tracker: ' + (source.includes('website-id') && source.includes('currentScript')));
+        report('Tracker source starts: ' + source.slice(0, 160));
+      })
+      .catch(error => report('Tracker source check failed: ' + error.message));
     let completed = false;
     const originalFetch = window.fetch.bind(window);
     window.fetch = async (...args) => {
