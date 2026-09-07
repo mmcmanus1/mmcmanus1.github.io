@@ -12,7 +12,7 @@ All new writing and supporting implementation remain unstaged, uncommitted, and 
 
 ## Jane Street puzzle explainer
 
-Standalone draft: /blog/a-neural-network-with-a-combination-lock/. Added at Matt's request, separate from the original five-part sequence. Credits Jane Street, Thomas Brownback, and Shreyas Mahimkar; the attached user notes supplied the solution outline. Does not claim independent discovery or original-model execution.
+Standalone draft: /blog/a-neural-network-with-a-combination-lock/. Added at Matt's request, separate from the original five-part sequence. Credits Jane Street, Thomas Brownback, and Shreyas Mahimkar; the attached user notes supplied the solution outline. Updated September 7, 2026 with a Codex-assisted executable solver and measured original-model execution: target extraction, 48,396,178-pair dictionary search, 15 forward passes, and length-boundary checks. Downloadable Python, instructions, dependencies, results JSON, and ZIP are attached. Does not claim blind independent discovery.
 
 Two additional interactive figures reconstruct the ReLU equality tent and the shrinking nonzero region when k comparisons share an error. Original explanatory extensions derive the L1 error budget, its geometric volume ratio, and a random-byte null model for misleading partial matches. These are analytic constructions, not empirical model results. The answer and digest verifier appear inside a collapsed spoiler reveal.
 

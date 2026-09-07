@@ -18,7 +18,7 @@ You have all the weights. Every layer is available to inspect. Surely that shoul
 
 The interesting part of [Jane Street’s tensor puzzle](https://blog.janestreet.com/can-you-reverse-engineer-our-neural-network/) is the gap between those two things: having a complete description of a computation, and knowing how to make it do what you want. The network was constructed by hand, rather than trained to understand the phrase. We're going to take apart its final test first, then work out what feeds into it.
 
-This is an explanation of a published solution, not a claim that I solved the original challenge independently. The small circuits below are reconstructed and checked separately; I have not run the original model end to end. The mechanism is spoiled below, but the winning phrase stays behind a reveal.
+This post now includes an executable solution: extract the target from the original weights, search English word pairs, and run the resulting phrase through the complete network. The implementation and verification are new; the MD5 interpretation and answer were already published. The mechanism is spoiled below, but the winning phrase stays behind a reveal. [Download the code and measured results](#run-it-yourself) to reproduce the run.
 
 ## Start with the lock, not the key
 
@@ -167,11 +167,11 @@ To test that identification, you would use several known strings, extract the ca
 
 **A boundary check:** try inputs of different lengths and check the input encoding. A few successful examples don't prove agreement everywhere. The reported length bug is exactly why that distinction matters.
 
-The examples in this post use ordinary MD5, not extracted network activations. They explain the hypothesis; they do not independently establish that the original model computes it.
+The interactive examples use ordinary MD5. The attached Python program goes further: it extracts values from the original network and compares all sixteen bytes for five non-answer inputs before beginning the search. All five match. The full measurements are attached below; these finite checks support the hypothesis without proving it for every input.
 
 </details>
 
-Here is the target documented by the published solvers:
+The attached program recovers this target directly from the model's biases, matching the value documented by published solvers:
 
 ```text
 c7ef65233c40aa32c2b9ace37595fa7c
@@ -239,9 +239,38 @@ assert digest == target
 print(digest)
 ```
 
-I independently checked this digest equality. That verifies the phrase against the reported target; it is not an end-to-end execution of the original network. Case, spaces, and newlines are bytes too—changing them changes what you hash.
+The attached solver also finds this phrase by enumeration and runs it through the original network: output **1.0**. Capitalizing both words, appending a space or newline, or doubling the internal space each produces **0.0**. Those are measured model outputs. Case, spaces, and newlines are bytes too—changing them changes what you hash.
 
 </details>
+
+## Run it yourself
+
+On September 7, 2026, I used Codex to implement and execute the published approach against Jane Street's original `model.pt`. The run recovered the target from the weights, searched **48,396,178 word pairs**, and verified the resulting phrase through all **5,442 layers** of the network. The search took **20.81 seconds** on this Mac using one Python process; that timing excludes downloading and loading the model and running the verification probes.
+
+[Download the complete solution bundle](/downloads/jane-street/jane-street-solution.zip), or inspect the [Python solver](/downloads/jane-street/solve.py), [run instructions](/downloads/jane-street/README.md), [dependencies](/downloads/jane-street/requirements.txt), and [actual results JSON](/downloads/jane-street/results.json). **The results and bundle contain the answer.** The 1.16 GB model is downloaded separately from Jane Street; it is not included in the bundle.
+
+The dictionary comes from the first 10,000 English entries in `wordfreq` 3.1.1. Filtering to lowercase ASCII words leaves **9,842 words**, in their original frequency order. The search tests ordered pairs up to 31 bytes long. Neither the winning phrase nor the target digest is hardcoded in the solver, and neither word is specially inserted. I knew the published answer before writing the program; reproducing the search does not make this a blind discovery.
+
+### Reading actual activations
+
+There is a useful implementation detail hidden by the simplified diagrams: the penultimate linear layer has **192 inputs and 48 outputs**. Its three repeated weight blocks each turn those 192 activations into sixteen byte values. Taking the first block's matrix product gives the digest before the biases and ReLU discard information:
+
+```python
+# comparator is the penultimate Linear layer from the loaded model.
+projection = comparator.weight.detach()[:16]
+target = -comparator.bias.detach()[16:32]
+
+# In a forward pre-hook on that layer:
+network_digest = projection @ inputs[0]
+```
+
+The solver checks that all three weight blocks agree, that their biases differ by one, and that the final layer has the expected weights and bias. It then runs the empty string, `a`, `abc`, `hello world`, and `vegetable dog`. Every extracted digest agrees byte for byte with Python's MD5. For example, the actual network produces `900150983cd24fb0d6963f7d28e17f72` for `abc` and then outputs zero because that digest does not match the target.
+
+### Reproducing the boundary bug
+
+The same measurement catches the length bug. Repeated `a` inputs match standard MD5 at lengths 30 and 31, but diverge at **32**, 33, and 55. At 32 characters, the network produces `3b6712e7d9d6911ac23fd69d2ede6abd`; Python's MD5 produces `5eca9bd3eb07c006cd43ae48dfde7fd3`. Both still fail the final lock. Looking only at the output zero would conceal this difference.
+
+The bundle includes Python 3.10 setup instructions, a pinned model download URL, and the expected SHA-256 checksum. The program checks that checksum before loading the model, then writes its environment, dictionary checksum, search count, and all fifteen model evaluations to JSON. Its assertions fail if the recovered phrase is not accepted, the altered phrases are accepted, or the digest checks disagree with the recorded expectations.
 
 ## What this puzzle does—and doesn't—show
 
@@ -275,4 +304,4 @@ Same mechanism. Same explanation. A very different search problem.
 
 ### Attribution and scope
 
-This post explains the original tensor/hash puzzle, not the separate shuffled-layer challenge linked at the end of Jane Street's article. The puzzle and solution mechanism belong to their creators and published solvers. The interactive figures, error-budget derivation, and random-byte calculation here are explanatory reconstructions. They are not recovered model activations or claims of a new cryptographic result. No model pickle was loaded to produce this post; loading an untrusted serialized Python model can execute code.
+This post explains the original tensor/hash puzzle, not the separate shuffled-layer challenge linked at the end of Jane Street's article. The puzzle and solution mechanism belong to their creators and published solvers. The interactive figures, error-budget derivation, and random-byte calculation here are explanatory reconstructions. The downloadable results are separately measured activations and outputs from the original model. The implementation was produced with Codex using the published approach and a previously known answer; it is a reproducible verification, not a claim of independent discovery or a new cryptographic result.

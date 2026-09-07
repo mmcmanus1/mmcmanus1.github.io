@@ -1,0 +1,155 @@
+{
+  "run_at": "2026-09-07T17:50:09.179659+00:00",
+  "provenance": "Fresh implementation of the published approach; answer was known beforehand.",
+  "environment": {
+    "python": "3.10.19",
+    "torch": "2.6.0",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "wordfreq": "3.1.1",
+    "torch_threads": 1
+  },
+  "model": {
+    "url": "https://huggingface.co/jane-street/2025-03-10/resolve/1a904e632c4224100e840445b0f00aa91e697edb/model.pt",
+    "sha256": "1ff10e21b54431a0959d8d6827d670fe122490c041ac234627fd37f44d825913",
+    "bytes": 1158692162,
+    "layers": 5442,
+    "linear_layers": 2721
+  },
+  "target": "c7ef65233c40aa32c2b9ace37595fa7c",
+  "search": {
+    "source": "wordfreq.top_n_list('en', n), filtered to [a-z]+, original frequency order",
+    "requested_entries": 10000,
+    "filtered_words": 9842,
+    "dictionary_sha256": "457a0e260086e0a4c5a41b33b9ed58ff8f0c718cba3d02df8a5eeabf65ab81ce",
+    "max_phrase_bytes": 31,
+    "attempted_pairs": 48396178,
+    "seconds": 20.807750791995204,
+    "phrase": "bitter lesson"
+  },
+  "identification_probes": [
+    {
+      "input": "",
+      "length": 0,
+      "output": 0.0,
+      "network_digest": "d41d8cd98f00b204e9800998ecf8427e",
+      "hashlib_md5": "d41d8cd98f00b204e9800998ecf8427e",
+      "digest_matches_md5": true
+    },
+    {
+      "input": "a",
+      "length": 1,
+      "output": 0.0,
+      "network_digest": "0cc175b9c0f1b6a831c399e269772661",
+      "hashlib_md5": "0cc175b9c0f1b6a831c399e269772661",
+      "digest_matches_md5": true
+    },
+    {
+      "input": "abc",
+      "length": 3,
+      "output": 0.0,
+      "network_digest": "900150983cd24fb0d6963f7d28e17f72",
+      "hashlib_md5": "900150983cd24fb0d6963f7d28e17f72",
+      "digest_matches_md5": true
+    },
+    {
+      "input": "hello world",
+      "length": 11,
+      "output": 0.0,
+      "network_digest": "5eb63bbbe01eeed093cb22bb8f5acdc3",
+      "hashlib_md5": "5eb63bbbe01eeed093cb22bb8f5acdc3",
+      "digest_matches_md5": true
+    },
+    {
+      "input": "vegetable dog",
+      "length": 13,
+      "output": 0.0,
+      "network_digest": "ab981aaa62cf6412f3aef1a11cd9b94b",
+      "hashlib_md5": "ab981aaa62cf6412f3aef1a11cd9b94b",
+      "digest_matches_md5": true
+    }
+  ],
+  "solution_checks": [
+    {
+      "input": "bitter lesson",
+      "length": 13,
+      "output": 1.0,
+      "network_digest": "c7ef65233c40aa32c2b9ace37595fa7c",
+      "hashlib_md5": "c7ef65233c40aa32c2b9ace37595fa7c",
+      "digest_matches_md5": true
+    },
+    {
+      "input": "Bitter Lesson",
+      "length": 13,
+      "output": 0.0,
+      "network_digest": "9edc70d898fa75bd632471e227d8d7a5",
+      "hashlib_md5": "9edc70d898fa75bd632471e227d8d7a5",
+      "digest_matches_md5": true
+    },
+    {
+      "input": "bitter lesson ",
+      "length": 14,
+      "output": 0.0,
+      "network_digest": "18f58442fe5800aa66abb9875415f34a",
+      "hashlib_md5": "18f58442fe5800aa66abb9875415f34a",
+      "digest_matches_md5": true
+    },
+    {
+      "input": "bitter lesson\n",
+      "length": 14,
+      "output": 0.0,
+      "network_digest": "645f0eda95fa8147cb911244a70ad1de",
+      "hashlib_md5": "645f0eda95fa8147cb911244a70ad1de",
+      "digest_matches_md5": true
+    },
+    {
+      "input": "bitter  lesson",
+      "length": 14,
+      "output": 0.0,
+      "network_digest": "185b8924ae52b052732e2c2d07c6ae54",
+      "hashlib_md5": "185b8924ae52b052732e2c2d07c6ae54",
+      "digest_matches_md5": true
+    }
+  ],
+  "length_boundary_checks": [
+    {
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "length": 30,
+      "output": 0.0,
+      "network_digest": "59e794d45697b360e18ba972bada0123",
+      "hashlib_md5": "59e794d45697b360e18ba972bada0123",
+      "digest_matches_md5": true
+    },
+    {
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "length": 31,
+      "output": 0.0,
+      "network_digest": "3b0845db57c200be6052466f87b2198a",
+      "hashlib_md5": "3b0845db57c200be6052466f87b2198a",
+      "digest_matches_md5": true
+    },
+    {
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "length": 32,
+      "output": 0.0,
+      "network_digest": "3b6712e7d9d6911ac23fd69d2ede6abd",
+      "hashlib_md5": "5eca9bd3eb07c006cd43ae48dfde7fd3",
+      "digest_matches_md5": false
+    },
+    {
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "length": 33,
+      "output": 0.0,
+      "network_digest": "b66d8ac281f8eaa2511319aded41efcc",
+      "hashlib_md5": "b4f13cb081e412f44e99742cb128a1a5",
+      "digest_matches_md5": false
+    },
+    {
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "length": 55,
+      "output": 0.0,
+      "network_digest": "47cedb6c644eb0f339432c22cdec7f80",
+      "hashlib_md5": "ef1772b6dff9a122358552954ad0df65",
+      "digest_matches_md5": false
+    }
+  ]
+}
