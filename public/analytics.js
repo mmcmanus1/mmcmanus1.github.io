@@ -2,6 +2,18 @@
   const domains = ['m-mcmanus.com', 'www.m-mcmanus.com', 'mmcmanus1.github.io'];
   if (!domains.includes(window.location.hostname) || navigator.doNotTrack === '1') return;
 
+  // Clarity runs without analytics or advertising cookies. Honor GPC as well.
+  if (!navigator.globalPrivacyControl) {
+    window.clarity = window.clarity || function () {
+      (window.clarity.q = window.clarity.q || []).push(arguments);
+    };
+    window.clarity('consentv2', { ad_Storage: 'denied', analytics_Storage: 'denied' });
+    const clarityScript = document.createElement('script');
+    clarityScript.async = true;
+    clarityScript.src = 'https://www.clarity.ms/tag/yha9iyyzfk';
+    document.head.appendChild(clarityScript);
+  }
+
   // Delegation also covers links rendered later by the standalone game.
   document.addEventListener('click', (click) => {
     const link = click.target instanceof Element ? click.target.closest('a[href]') : null;

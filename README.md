@@ -65,3 +65,17 @@ prevent collection. The tracker never delays or cancels link navigation.
 
 To verify a deployment, visit the live site and confirm a page view and a link
 click in your Umami dashboard. Do not put Umami API keys in site code.
+
+### Additional analytics
+
+- Google Search Console: domain property `m-mcmanus.com`, verified using a TXT
+  record in Cloudflare DNS. Keep that verification record in place.
+- Umami: saved goals for CV page visits and CV PDF clicks; the Journeys view
+  shows navigation paths using existing page and event data.
+- Microsoft Clarity: project `yha9iyyzfk` (Matt McManus Portfolio), loaded by
+  `public/analytics.js` on both Astro pages and the standalone SET game.
+  Both Consent V2 storage categories are denied before loading the tracker,
+  so Clarity operates in limited, cookieless mode. No cross-page session
+  continuity is promised. Do Not Track and Global Privacy Control prevent
+  loading Clarity. Its dashboard may take up to two hours to show new data.
+  Public disclosure is at `/privacy/`.
